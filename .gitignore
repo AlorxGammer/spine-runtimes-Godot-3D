@@ -28,7 +28,9 @@ example-v4-extension-Spine-*/bin/*
 !example-v4-extension-Spine-*/bin/spine_godot_extension.gdextension.uid
 
 # Godot generated state
-.godot/
+**/.godot/*
+!**/.godot/
+!**/.godot/extension_list.cfg
 
 # Local dependency/build selection
 build/last-selection.json

@@ -1,4 +1,4 @@
-# Spine Godot 3D - Spine Runtime 4.2
+﻿# Spine Godot 3D - Spine Runtime 4.2
 
 This branch/tree is the Godot 4.3+ GDExtension build of the Spine Godot 3D runtime for Spine Runtime 4.2 data.
 
@@ -60,6 +60,7 @@ The build scripts clone or update godot-cpp and spine-runtimes automatically, th
 | macOS/iOS | Xcode command line tools, Python 3, SCons, Git |
 | Linux/Web | Godot/godot-cpp compatible C++ toolchain; Emscripten for Web |
 | Android | Android SDK and NDK via ANDROID_HOME, ANDROID_SDK_ROOT, or Android Studio |
+Android note: the build scripts prefer Android NDK `23.2.8568313` when it is installed, because that is the stable baseline tested with Godot 4.3 Android export templates. If that NDK is missing, the scripts fall back to another installed NDK, but other NDK versions are fallback-only and not release-validated yet. The extension is linked with static libc++ and 16 KB LOAD segment alignment to avoid NDK libc++ mismatches and Android 15+ page-size warnings for `libspine_godot`; Godot's own export-template libraries still depend on the selected Godot export templates.
 | C# | .NET SDK and Godot .NET editor for opening C# demo projects |
 
 The Extended/extra Spine runtime variant is not supported.
