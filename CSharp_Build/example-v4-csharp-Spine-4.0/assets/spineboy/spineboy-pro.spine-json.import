@@ -1,0 +1,13 @@
+[remap]
+
+importer="spine.json"
+type="SpineSkeletonFileResource"
+uid="uid://bngulrxfavqyn"
+valid=false
+
+[deps]
+
+source_file="res://assets/spineboy/spineboy-pro.spine-json"
+
+[params]
+

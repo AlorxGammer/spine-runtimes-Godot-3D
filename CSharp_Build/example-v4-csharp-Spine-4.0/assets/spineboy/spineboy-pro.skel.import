@@ -1,0 +1,13 @@
+[remap]
+
+importer="spine.skel"
+type="SpineSkeletonFileResource"
+uid="uid://cth0eypg16cgi"
+valid=false
+
+[deps]
+
+source_file="res://assets/spineboy/spineboy-pro.skel"
+
+[params]
+

@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://ct7fjvjxwdu8t"]
+
+[ext_resource type="SpineSkeletonDataResource" path="res://assets/spineboy/spineboy-data-res.tres" id="1_ax2x6"]
+[ext_resource type="Script" path="res://examples3D/01-helloworld-3D/SpineboyHelloWorld3D.cs" id="2_xe8vj"]
+
+[node name="Node3D" type="Node3D" unique_id=957087959]
+
+[node name="Spineboy" type="SpineSprite3D" parent="." unique_id=1702801324]
+skeleton_data_res = ExtResource("1_ax2x6")
+bones_color = Color(0.968627, 1, 0, 0.501961)
+paths_color = Color(1, 0.498039, 0, 0.466667)
+preview_skin = "default"
+preview_animation = "walk"
+preview_frame = true
+preview_time = 0.2
+transform = Transform3D(0.466832, 0, 0, 0, 0.466832, 0, 0, 0, 1, -0.0593748, -0.00339675, 0)
+script = ExtResource("2_xe8vj")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=28939]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 1.4337933, 3.98254)
