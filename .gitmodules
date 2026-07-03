@@ -1,0 +1,8 @@
+[submodule "godot-cpp"]
+	path = godot-cpp
+	url = https://github.com/godotengine/godot-cpp.git
+	branch = 4.3
+[submodule "spine-runtimes"]
+	path = spine-runtimes
+	url = https://github.com/EsotericSoftware/spine-runtimes.git
+	branch = 3.8

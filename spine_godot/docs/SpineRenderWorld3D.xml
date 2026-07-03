@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="SpineRenderWorld3D" inherits="Node3D" version="4.5">
+	<brief_description>
+		Collects streamed 3D Spine slot geometry into ordered batched mesh runs.
+	</brief_description>
+	<description>
+		[code]SpineRenderWorld3D[/code] is the first backend for an ordered skeletal render stream. Descendant [code]SpineSprite3D[/code] nodes with [code]render_backend[/code] set to [code]Stream World[/code], or to [code]Auto Stream World[/code] while parented under this world, keep their normal skeleton, animation, bone, slot, and collision logic, but submit their visible slots as lightweight render parts to this world. The world sorts those parts by render plane, world order, sprite stream order, collector object index, and slot order, then merges consecutive parts that share the same canonical stream material into larger [code]ArrayMesh[/code] surfaces.
+		Generated and runtime override materials are cached by the render world so identical streamed sprites can share material instances inside the same render-cell. Nested [code]SpineRenderWorld3D[/code] descendants stop recursive collection to avoid submitting the same sprite into parent and child worlds.
+		New [code]SpineSprite3D[/code] nodes default to [code]Auto Stream World[/code]. Without a [code]SpineRenderWorld3D[/code] ancestor they fall back to their local reference mesh; under a render world they automatically use the streamed batched path.
+		This backend is still a GDExtension-level dynamic mesh path. It reduces per-slot surface churn and preserves ordered transparency barriers inside one render world, but it is not a renderer-core custom pass or GPU bone palette implementation.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="render_now">
+			<return type="void" />
+			<description>
+				Immediately collects descendant stream-enabled [code]SpineSprite3D[/code] nodes, including [code]Auto Stream World[/code] sprites under this world, and rebuilds the batched meshes.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="auto_collect_descendants" type="bool" setter="set_auto_collect_descendants" getter="is_auto_collect_descendants" default="true">
+			When enabled, the world collects and rebuilds once per process frame.
+		</member>
+		<member name="render_plane" type="int" setter="set_render_plane" getter="get_render_plane" default="0">
+			High-level ordered layer for this stream.
+		</member>
+		<member name="world_order" type="int" setter="set_world_order" getter="get_world_order" default="0">
+			Order within [code]render_plane[/code].
+		</member>
+		<member name="material_render_priority" type="int" setter="set_material_render_priority" getter="get_material_render_priority" default="0">
+			Render priority used when generating shared stream materials. Keeping this stable lets consecutive slots with the same texture and blend mode batch together.
+		</member>
+		<member name="max_parts_per_frame" type="int" setter="set_max_parts_per_frame" getter="get_max_parts_per_frame" default="0">
+			Optional safety cap. [code]0[/code] means unlimited.
+		</member>
+		<member name="last_sprite_count" type="int" setter="" getter="get_last_sprite_count" default="0">
+			Number of stream-enabled sprites collected in the previous rebuild.
+		</member>
+		<member name="last_part_count" type="int" setter="" getter="get_last_part_count" default="0">
+			Number of render parts collected in the previous rebuild.
+		</member>
+		<member name="last_run_count" type="int" setter="" getter="get_last_run_count" default="0">
+			Number of visible material runs emitted in the previous rebuild.
+		</member>
+		<member name="last_shadow_run_count" type="int" setter="" getter="get_last_shadow_run_count" default="0">
+			Number of shadow material runs emitted in the previous rebuild.
+		</member>
+	</members>
+	<constants>
+	</constants>
+</class>

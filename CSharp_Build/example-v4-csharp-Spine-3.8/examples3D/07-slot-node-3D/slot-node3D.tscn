@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://bo61y75ea17c0"]
+
+[ext_resource type="Script" path="res://examples3D/07-slot-node-3D/SlotNode3D.cs" id="1_10qjd"]
+[ext_resource type="SpineSkeletonDataResource" path="res://assets/spineboy/spineboy-data-res.tres" id="2_8jiyu"]
+[ext_resource type="SpineSkeletonDataResource" path="res://assets/raptor/raptor-data.tres" id="3_nlndb"]
+[ext_resource type="Texture2D" path="res://icon.png" id="4_1cjgg"]
+
+[node name="Node3D" type="Node3D" unique_id=567886593]
+script = ExtResource("1_10qjd")
+
+[node name="Spineboy" type="SpineSprite3D" parent="." unique_id=1845148730]
+skeleton_data_res = ExtResource("2_8jiyu")
+preview_skin = "Default"
+preview_animation = "-- Empty --"
+preview_frame = false
+preview_time = 0.0
+transform = Transform3D(0.560712, 0, 0, 0, 0.560712, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="GunSlot" type="SpineSlotNode3D" parent="Spineboy" unique_id=1543875442]
+slot_name = "gun"
+transform = Transform3D(0.67249596, 0.7401007, 0, -0.7401006, 0.672496, 0, 0, 0, 1, 0.39771274, 2.7619798, 0.010749992)
+
+[node name="Raptor" type="SpineSprite3D" parent="Spineboy/GunSlot" unique_id=438203494]
+skeleton_data_res = ExtResource("3_nlndb")
+preview_skin = "Default"
+preview_animation = "-- Empty --"
+preview_frame = false
+preview_time = 0.0
+transform = Transform3D(0.19300002, -7.450581e-09, 0, 7.450581e-09, 0.19300003, 0, 0, 0, 0.19299999, 0.847, 0.67, 0)
+
+[node name="EyeSlot" type="SpineSlotNode3D" parent="Spineboy" unique_id=1815140668]
+slot_name = "eye"
+transform = Transform3D(-0.15057066, -0.98859936, 0, 0.98859936, -0.15057066, 0, 0, 0, 1, -0.25073922, 4.0220704, 0.014749989)
+
+[node name="Sprite" type="Sprite3D" parent="Spineboy/EyeSlot" unique_id=745933322]
+transform = Transform3D(-0.09237045, 0.99572384, 0, -0.99572384, -0.09237045, 0, 0, 0, 1, 0.8706565, -0.4169607, 0)
+cast_shadow = 0
+render_priority = -44
+texture = ExtResource("4_1cjgg")
+
+[node name="FrontFistSlot" type="SpineSlotNode3D" parent="Spineboy" unique_id=1155691876]
+slot_name = "front-fist"
+transform = Transform3D(0.54770935, 0.83666867, 0, -0.8366688, 0.5477093, 0, 0, 0, 1, -0.29998454, 2.4146292, 0.018249987)
+
+[node name="TinySpineboy" type="SpineSprite3D" parent="Spineboy/FrontFistSlot" unique_id=847142195]
+skeleton_data_res = ExtResource("2_8jiyu")
+preview_skin = "Default"
+preview_animation = "-- Empty --"
+preview_frame = false
+preview_time = 0.0
+transform = Transform3D(0.19300003, -7.450581e-09, 0, 7.450581e-09, 0.19300003, 0, 0, 0, 0.193, 0.2, 0.1, 0)
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1689762275]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 2.424516, 3.8656478)
