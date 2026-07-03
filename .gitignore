@@ -1,0 +1,39 @@
+# Editors and local tooling
+.idea/
+.vscode/
+*.code-workspace
+
+# Python and SCons state
+__pycache__/
+*.pyc
+.sconsign.dblite
+compile_commands.json
+src/
+
+# Native build products
+bin/
+dist/
+logs/
+*.log
+*.obj
+*.o
+*.os
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.d
+!example-v4-extension-Spine-*/bin/
+example-v4-extension-Spine-*/bin/*
+!example-v4-extension-Spine-*/bin/spine_godot_extension.gdextension.uid
+
+# Godot generated state
+.godot/
+
+# Local dependency/build selection
+build/last-selection.json
+/Codex.md
+
+# OS files
+.DS_Store
+Thumbs.db

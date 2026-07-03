@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://cccxrgrqh32r1"]
+
+[ext_resource type="Script" path="res://examples3D/02-animation-state-listeners-3D/AnimationStateListener3D.cs" id="1_3sivf"]
+[ext_resource type="SpineSkeletonDataResource" uid="uid://cb6rn6vonqbx0" path="res://assets/spineboy/spineboy-data-res.tres" id="2_wkjko"]
+[ext_resource type="AudioStream" uid="uid://can7k84o8svum" path="res://assets/footstep.ogg" id="3_an5a7"]
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_3sivf")
+
+[node name="Spineboy" type="SpineSprite3D" parent="."]
+skeleton_data_res = ExtResource("2_wkjko")
+preview_skin = "Default"
+preview_animation = "-- Empty --"
+preview_frame = false
+preview_time = 0.0
+transform = Transform3D(0.575051, 0, 0, 0, 0.575051, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="FootstepAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_an5a7")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 1.43379, 3.98254)
