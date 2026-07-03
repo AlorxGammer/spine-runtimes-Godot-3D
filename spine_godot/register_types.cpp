@@ -114,6 +114,14 @@ void initialize_spine_godot_module(ModuleInitializationLevel level) {
 		GDREGISTER_CLASS(SpineAtlasResourceFormatSaver);
 		GDREGISTER_CLASS(SpineSkeletonFileResourceFormatLoader);
 		GDREGISTER_CLASS(SpineSkeletonFileResourceFormatSaver);
+
+		// Exported binary resources can be parsed before SCENE initialization on
+		// Android. Register the custom Resource classes early so .res dependencies
+		// such as SpineSkeletonDataResource have a loader/type at startup.
+		GDREGISTER_CLASS(SpineAtlasResource);
+		GDREGISTER_CLASS(SpineSkeletonFileResource);
+		GDREGISTER_CLASS(SpineSkeletonDataResource);
+		GDREGISTER_CLASS(SpineAnimationMix);
 		return;
 	}
 	if (level != MODULE_INITIALIZATION_LEVEL_SCENE) return;
@@ -146,10 +154,12 @@ void register_spine_godot_types() {
 #endif
 
 	GDREGISTER_CLASS(SpineObjectWrapper);
+#ifndef SPINE_GODOT_EXTENSION
 	GDREGISTER_CLASS(SpineAtlasResource);
 	GDREGISTER_CLASS(SpineSkeletonFileResource);
 	GDREGISTER_CLASS(SpineSkeletonDataResource);
 	GDREGISTER_CLASS(SpineAnimationMix);
+#endif
 	GDREGISTER_CLASS(SpineSprite);
 	GDREGISTER_CLASS(SpineSprite3D);
 	GDREGISTER_CLASS(SpineRenderWorld3D);
@@ -433,6 +443,14 @@ void initialize_spine_godot_module(ModuleInitializationLevel level) {
 		GDREGISTER_CLASS(SpineAtlasResourceFormatSaver);
 		GDREGISTER_CLASS(SpineSkeletonFileResourceFormatLoader);
 		GDREGISTER_CLASS(SpineSkeletonFileResourceFormatSaver);
+
+		// Exported binary resources can be parsed before SCENE initialization on
+		// Android. Register the custom Resource classes early so .res dependencies
+		// such as SpineSkeletonDataResource have a loader/type at startup.
+		GDREGISTER_CLASS(SpineAtlasResource);
+		GDREGISTER_CLASS(SpineSkeletonFileResource);
+		GDREGISTER_CLASS(SpineSkeletonDataResource);
+		GDREGISTER_CLASS(SpineAnimationMix);
 	}
 	if (level != MODULE_INITIALIZATION_LEVEL_SCENE) return;
 #else
@@ -464,10 +482,12 @@ void register_spine_godot_types() {
 #endif
 
 	GDREGISTER_CLASS(SpineObjectWrapper);
+#ifndef SPINE_GODOT_EXTENSION
 	GDREGISTER_CLASS(SpineAtlasResource);
 	GDREGISTER_CLASS(SpineSkeletonFileResource);
 	GDREGISTER_CLASS(SpineSkeletonDataResource);
 	GDREGISTER_CLASS(SpineAnimationMix);
+#endif
 	GDREGISTER_CLASS(SpineSprite);
 	GDREGISTER_CLASS(SpineSprite3D);
 	GDREGISTER_CLASS(SpineRenderWorld3D);
