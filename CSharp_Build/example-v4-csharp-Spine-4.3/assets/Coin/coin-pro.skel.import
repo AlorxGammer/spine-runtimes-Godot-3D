@@ -1,0 +1,14 @@
+[remap]
+
+importer="spine.skel"
+type="SpineSkeletonFileResource"
+uid="uid://blkluluib3a0c"
+path="res://.godot/imported/coin-pro.skel-ae418ed0a92c910fe178cfd88ccd6611.spskel"
+
+[deps]
+
+source_file="res://assets/Coin/coin-pro.skel"
+dest_files=["res://.godot/imported/coin-pro.skel-ae418ed0a92c910fe178cfd88ccd6611.spskel"]
+
+[params]
+
