@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://cccxrgrqh32r1"]
 
-[ext_resource type="Script" uid="uid://bk4mkjx1d52hb" path="res://examples3D/02-animation-state-listeners-3D/animation-state-listeners-3D.gd" id="1_3sivf"]
+[ext_resource type="Script" path="res://examples3D/02-animation-state-listeners-3D/animation-state-listeners-3D.gd" id="1_3sivf"]
 [ext_resource type="SpineSkeletonDataResource" uid="uid://cb6rn6vonqbx0" path="res://assets/spineboy/spineboy-data-res.tres" id="2_wkjko"]
 [ext_resource type="AudioStream" uid="uid://can7k84o8svum" path="res://assets/footstep.ogg" id="3_an5a7"]
 

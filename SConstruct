@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 import os
 import subprocess
 import sys
@@ -15,6 +15,8 @@ DEMO_PROJECT_ROOTS = {
     "csharp": ("CSharp_Build", "example-v4-csharp-Spine-"),
 }
 
+PREFERRED_ANDROID_NDK = "23.2.8568313"
+
 
 def normalize_path(value, env):
     return value if os.path.isabs(value) else os.path.join(env.Dir("#").abspath, value)
@@ -24,6 +26,13 @@ def validate_parent_dir(key, value, env):
     parent = os.path.dirname(value)
     if not os.path.isdir(normalize_path(parent, env)):
         raise UserError("'%s' is not a directory: %s" % (key, parent))
+
+
+def write_demo_extension_list(target, source, env):
+    extension_list = str(target[0])
+    os.makedirs(os.path.dirname(extension_list), exist_ok=True)
+    with open(extension_list, "w", newline="\n") as f:
+        f.write("res://bin/spine_godot_extension.gdextension\n")
 
 
 local_env = Environment(tools=["default"], PLATFORM="")
@@ -142,14 +151,24 @@ if selected_platform == "android":
                 if os.path.isdir(os.path.join(ndk_dir, name))
             )
             if installed_ndks:
-                android_ndk_root = os.path.join(ndk_dir, installed_ndks[-1])
+                selected_ndk = (
+                    PREFERRED_ANDROID_NDK
+                    if PREFERRED_ANDROID_NDK in installed_ndks
+                    else installed_ndks[-1]
+                )
+                android_ndk_root = os.path.join(ndk_dir, selected_ndk)
                 os.environ["ANDROID_NDK_ROOT"] = android_ndk_root
     if android_ndk_root:
         # godot-cpp 4.x hardcodes an NDK version when ANDROID_HOME is set.
         # Prefer an explicit NDK root so side-by-side installed NDK versions work.
+        selected_ndk = os.path.basename(os.path.normpath(android_ndk_root))
+        if selected_ndk:
+            env["ndk_version"] = selected_ndk
+            ARGUMENTS["ndk_version"] = selected_ndk
         os.environ["ANDROID_NDK_ROOT"] = android_ndk_root
         os.environ.pop("ANDROID_HOME", None)
         os.environ.pop("ANDROID_SDK_ROOT", None)
+        ARGUMENTS["ANDROID_HOME"] = ""
         env["ANDROID_HOME"] = ""
     else:
         env["ANDROID_HOME"] = os.environ.get(
@@ -184,6 +203,13 @@ else:
 if env["platform"] == "ios":
     env.Append(CCFLAGS=["-miphoneos-version-min=12.0"])
     env.Append(LINKFLAGS=["-miphoneos-version-min=12.0"])
+
+if env["platform"] == "android":
+    # Android 15+ devices can use 16 KB memory pages. Align our shared
+    # library LOAD segments so the extension does not trigger compatibility
+    # mode warnings on those devices. Static libc++ also avoids depending on
+    # the libc++_shared.so bundled by the selected Godot export template.
+    env.AppendUnique(LINKFLAGS=["-static-libstdc++", "-Wl,-z,max-page-size=16384"])
 
 sources = Glob(runtime_dir + "/src/spine/*.cpp")
 extension_sources = [
@@ -286,6 +312,13 @@ default_targets += env.Install(
 )
 
 if install_demo:
+    default_targets += [
+        env.Command(
+            "{}/.godot/extension_list.cfg".format(demo_project_dir),
+            [],
+            write_demo_extension_list,
+        )
+    ]
     default_targets += [
         env.InstallAs("{}/{}".format(demo_project_dir, package_library_path), library),
         env.InstallAs(

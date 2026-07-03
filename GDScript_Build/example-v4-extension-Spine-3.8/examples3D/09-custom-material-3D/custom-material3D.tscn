@@ -1,9 +1,9 @@
 [gd_scene load_steps=7 format=3 uid="uid://b5x62ynmg550i"]
 
 [ext_resource type="SpineSkeletonDataResource" uid="uid://cb6rn6vonqbx0" path="res://assets/spineboy/spineboy-data-res.tres" id="1_hjunx"]
-[ext_resource type="Shader" uid="uid://cdywken68esc" path="res://assets/shaders/new_shader.gdshader" id="2_a57ni"]
-[ext_resource type="Script" uid="uid://drgxqj2tem4l8" path="res://examples3D/01-helloworld-3D/spineboy-helloworld-3D-.gd" id="3_4bkm8"]
-[ext_resource type="Shader" uid="uid://cbv15ktrf6ebh" path="res://assets/shaders/new_shader1.gdshader" id="4_k8pwq"]
+[ext_resource type="Shader" path="res://assets/shaders/new_shader.gdshader" id="2_a57ni"]
+[ext_resource type="Script" path="res://examples3D/01-helloworld-3D/spineboy-helloworld-3D-.gd" id="3_4bkm8"]
+[ext_resource type="Shader" path="res://assets/shaders/new_shader1.gdshader" id="4_k8pwq"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_xtkie"]
 render_priority = 0

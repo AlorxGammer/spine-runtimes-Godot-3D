@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://b0ft2sifsin1i"]
 
 [ext_resource type="SpineSkeletonDataResource" uid="uid://cb6rn6vonqbx0" path="res://assets/spineboy/spineboy-data-res.tres" id="1_6udh2"]
-[ext_resource type="Script" uid="uid://c0vk268pvijik" path="res://examples3D/04-simple-input-3D/spineboy-simple-input-3D.gd" id="2_pkklg"]
+[ext_resource type="Script" path="res://examples3D/04-simple-input-3D/spineboy-simple-input-3D.gd" id="2_pkklg"]
 
 [node name="Node3D" type="Node3D"]
 

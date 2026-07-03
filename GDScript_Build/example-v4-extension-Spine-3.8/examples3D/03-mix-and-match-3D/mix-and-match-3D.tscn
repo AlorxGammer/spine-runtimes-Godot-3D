@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bkngn6d58s2fe"]
 
 [ext_resource type="SpineSkeletonDataResource" path="res://assets/mix-and-match/mix-and-match-data.tres" id="1_raxkl"]
-[ext_resource type="Script" uid="uid://cxnovxa1eh6rn" path="res://examples3D/03-mix-and-match-3D/mix-and-match-3D.gd" id="2_dis8b"]
+[ext_resource type="Script" path="res://examples3D/03-mix-and-match-3D/mix-and-match-3D.gd" id="2_dis8b"]
 
 [node name="Node3D" type="Node3D"]
 

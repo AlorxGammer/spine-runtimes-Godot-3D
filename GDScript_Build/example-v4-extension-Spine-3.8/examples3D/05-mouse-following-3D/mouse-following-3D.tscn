@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://brp0ordwyh12o"]
 
 [ext_resource type="SpineSkeletonDataResource" uid="uid://cb6rn6vonqbx0" path="res://assets/spineboy/spineboy-data-res.tres" id="2_077y8"]
-[ext_resource type="Script" uid="uid://b8msr00ur1qj5" path="res://examples3D/05-mouse-following-3D/mouse-following-3D.gd" id="3_077y8"]
+[ext_resource type="Script" path="res://examples3D/05-mouse-following-3D/mouse-following-3D.gd" id="3_077y8"]
 
 [node name="Node3D" type="Node3D"]
 script = ExtResource("3_077y8")

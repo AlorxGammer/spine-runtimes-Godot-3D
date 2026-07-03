@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dfcdtajryhqfs"]
 
-[ext_resource type="Script" uid="uid://d1jctk8o0xxa" path="res://examples3D/12-load-from-disk-3D/load_from_disk-3D.gd" id="1_56rec"]
+[ext_resource type="Script" path="res://examples3D/12-load-from-disk-3D/load_from_disk-3D.gd" id="1_56rec"]
 
 [node name="Load-from-disk" type="Node3D"]
 script = ExtResource("1_56rec")
