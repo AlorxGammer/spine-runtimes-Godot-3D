@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="SpineBoneNode3D" inherits="Node3D" version="4.5">
+	<brief_description>
+		Node3D that either follows or drives a bone in a [code]SpineSprite3D[/code].
+	</brief_description>
+	<description>
+		Node3D that either follows or drives a bone in a [code]SpineSprite3D[/code]. Bone transforms are converted between Spine's 2D skeleton space and Godot's 3D world so the node can be used in 3D scenes.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+	</methods>
+	<members>
+		<member name="bone_mode" type="int" setter="set_bone_mode" getter="get_bone_mode" enum="SpineConstant.BoneMode" default="0">
+		</member>
+		<member name="enabled" type="bool" setter="set_enabled" getter="get_enabled" default="true">
+		</member>
+	</members>
+	<constants>
+	</constants>
+</class>

@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://4hs8n7u47oc7"]
+
+[ext_resource type="Script" path="res://examples3D/10-2d-lighting-3D/2d-lighting-3D.gd" id="1_hupff"]
+[ext_resource type="SpineSkeletonDataResource" path="res://assets/raptor/raptor-data.tres" id="2_vuev0"]
+[ext_resource type="Script" path="res://OmniLight2.5D.gd" id="3_pg6c8"]
+
+[sub_resource type="Environment" id="Environment_eood3"]
+background_mode = 1
+
+[node name="Node3D" type="Node3D" unique_id=961310444]
+script = ExtResource("1_hupff")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=733972206]
+environment = SubResource("Environment_eood3")
+
+[node name="SpineSprite" type="SpineSprite3D" parent="." unique_id=51006291]
+skeleton_data_res = ExtResource("2_vuev0")
+lighting_enabled = true
+shadow_casting_mode = 1
+preview_skin = "Default"
+preview_animation = "-- Empty --"
+preview_frame = false
+preview_time = 0.0
+transform = Transform3D(0.458967, 0, 0, 0, 0.458967, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1515767119]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55237615, 2.3269496, 3.98254)
+
+[node name="OmniLight3D_Back" type="OmniLight3D" parent="." unique_id=556027293]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.847, 2.261, -2.576)
+light_color = Color(1, 0.011764706, 0.011764706, 1)
+light_energy = 3.0
+script = ExtResource("3_pg6c8")
+
+[node name="OmniLight3D_Front" type="OmniLight3D" parent="." unique_id=1332676046]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.846917, 2.2611165, 2.5759585)
+light_color = Color(1, 0.011764706, 0.011764706, 1)
+light_energy = 3.0
+script = ExtResource("3_pg6c8")

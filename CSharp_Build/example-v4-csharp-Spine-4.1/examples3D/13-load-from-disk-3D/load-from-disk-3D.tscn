@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://dfcdtajryhqfs"]
+
+[ext_resource type="Script" path="res://examples3D/13-load-from-disk-3D/LoadFromDisk3D.cs" id="1_56rec"]
+
+[node name="Load-from-disk" type="Node3D" unique_id=989754032]
+script = ExtResource("1_56rec")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=339933178]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 1.4337933, 3.98254)
