@@ -1,4 +1,4 @@
-; Engine configuration file.
+﻿; Engine configuration file.
 ; It's best edited using the editor UI and not directly,
 ; since the parameters that go here are not all obvious.
 ;
@@ -16,7 +16,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="example-v4-extension-Spine-4.3"
 run/main_scene="res://examples3D/01-helloworld-3D/helloworld-3D.tscn"
-config/features=PackedStringArray("4.1")
+config/features=PackedStringArray("4.3")
 run/low_processor_mode=true
 config/icon="res://icon.png"
 
@@ -27,6 +27,11 @@ import/blender/enabled=false
 [global]
 
 batch=false
+
+
+[native_extensions]
+
+paths=["res://bin/spine_godot_extension.gdextension"]
 
 [physics]
 
