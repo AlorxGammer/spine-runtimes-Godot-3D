@@ -5,6 +5,13 @@
  * Copyright (c) 2013-2025, Esoteric Software LLC
  *****************************************************************************/
 
+/****************************************************************************
+ * Unofficial 3D extension additions.
+ *
+ * This file is distributed as part of a modified Spine Runtime package and
+ * remains subject to the Spine Runtimes License and preserved Esoteric
+ * Software notices.
+ *****************************************************************************/
 #pragma once
 
 #include "SpineAnimationState.h"
