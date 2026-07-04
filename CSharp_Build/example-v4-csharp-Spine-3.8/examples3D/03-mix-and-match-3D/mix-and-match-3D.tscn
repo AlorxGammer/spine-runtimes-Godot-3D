@@ -15,4 +15,4 @@ transform = Transform3D(0.441932, 0, 0, 0, 0.441932, 0, 0, 0, 1, 0, 0, 0)
 script = ExtResource("2_dis8b")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 1.4337933, 3.98254)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 1.43379, 3.98254)

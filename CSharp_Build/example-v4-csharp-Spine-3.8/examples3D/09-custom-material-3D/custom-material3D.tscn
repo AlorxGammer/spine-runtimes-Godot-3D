@@ -1,6 +1,6 @@
-[gd_scene format=3 uid="uid://b5x62ynmg550i"]
+[gd_scene load_steps=7 format=3 uid="uid://b5x62ynmg550i"]
 
-[ext_resource type="SpineSkeletonDataResource" path="res://assets/spineboy/spineboy-data-res.tres" id="1_hjunx"]
+[ext_resource type="SpineSkeletonDataResource" uid="uid://cb6rn6vonqbx0" path="res://assets/spineboy/spineboy-data-res.tres" id="1_hjunx"]
 [ext_resource type="Shader" path="res://assets/shaders/new_shader.gdshader" id="2_a57ni"]
 [ext_resource type="Script" path="res://examples3D/09-custom-material-3D/CustomMaterial3D.cs" id="3_4bkm8"]
 [ext_resource type="Shader" path="res://assets/shaders/new_shader1.gdshader" id="4_k8pwq"]
@@ -27,7 +27,7 @@ script = ExtResource("3_4bkm8")
 [node name="GunSlot" type="SpineSlotNode3D" parent="SpineSprite3D"]
 normal_material = SubResource("ShaderMaterial_sydq4")
 slot_name = "gun"
-transform = Transform3D(0.67249596, 0.7401007, 0, -0.7401006, 0.672496, 0, 0, 0, 1, 0.4022306, 2.7671106, 0.008279125)
+transform = Transform3D(0.672496, 0.740101, 0, -0.740101, 0.672496, 0, 0, 0, 1, 0.400794, 2.76982, 0.00664785)
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 3.3518128, 4.9463596)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 3.35181, 4.94636)

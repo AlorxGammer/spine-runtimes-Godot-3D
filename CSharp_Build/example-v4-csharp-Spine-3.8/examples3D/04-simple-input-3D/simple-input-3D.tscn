@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://b0ft2sifsin1i"]
 
-[ext_resource type="SpineSkeletonDataResource" path="res://assets/spineboy/spineboy-data-res.tres" id="1_6udh2"]
+[ext_resource type="SpineSkeletonDataResource" uid="uid://cb6rn6vonqbx0" path="res://assets/spineboy/spineboy-data-res.tres" id="1_6udh2"]
 [ext_resource type="Script" path="res://examples3D/04-simple-input-3D/SpineboySimpleInput3D.cs" id="2_pkklg"]
 
 [node name="Node3D" type="Node3D"]
@@ -15,4 +15,4 @@ transform = Transform3D(0.518624, 0, 0, 0, 0.518624, 0, 0, 0, 1, 0, 0, 0)
 script = ExtResource("2_pkklg")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 1.4337933, 3.98254)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 1.43379, 3.98254)

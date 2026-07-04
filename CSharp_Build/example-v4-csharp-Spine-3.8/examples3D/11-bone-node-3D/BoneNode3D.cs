@@ -120,6 +120,9 @@ public partial class BoneNode3D : Node3D
 		var xAxis = new Vector2(xAxis3D.X, -xAxis3D.Y);
 		var yAxis = new Vector2(yAxis3D.X, -yAxis3D.Y);
 		var origin = new Vector2(sourceTransform.Origin.X * ppu, -sourceTransform.Origin.Y * ppu);
-		return new Transform2D(xAxis, yAxis, origin);
+		var boneTransform = new Transform2D(Mathf.Atan2(xAxis.Y, xAxis.X), origin);
+		boneTransform.X *= xAxis.Length();
+		boneTransform.Y *= yAxis.Length();
+		return boneTransform;
 	}
 }
