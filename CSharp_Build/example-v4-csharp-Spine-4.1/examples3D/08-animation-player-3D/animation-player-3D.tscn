@@ -1,4 +1,4 @@
-﻿[gd_scene load_steps=3 format=3 uid="uid://csharp_animation_player_3d"]
+[gd_scene load_steps=3 format=3 uid="uid://csharp_animation_player_3d"]
 
 [ext_resource type="Script" path="res://examples3D/08-animation-player-3D/PlayCutscene3D.cs" id="1_script"]
 [ext_resource type="SpineSkeletonDataResource" path="res://assets/spineboy/spineboy-data-res.tres" id="2_spineboy"]
@@ -12,10 +12,10 @@ preview_skin = "Default"
 preview_animation = "-- Empty --"
 preview_frame = false
 preview_time = 0.0
-transform = Transform3D(0.0065, 0, 0, 0, 0.0065, 0, 0, 0, 0.0065, 0, -1.05, 0)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0)
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0.45, 5.2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 1.43379, 3.98254)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.866025, -0.25, 0.433013, 0, 0.866025, 0.5, -0.5, -0.433013, 0.75, 0, 2, 2)

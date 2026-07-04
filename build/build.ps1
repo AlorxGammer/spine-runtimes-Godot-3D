@@ -23,6 +23,7 @@ $Versions = Get-Content -LiteralPath $VersionsFile -Raw | ConvertFrom-Json
 $GodotCppPath = Join-Path $Root "godot-cpp"
 $SpineRuntimesPath = Join-Path $Root "spine-runtimes"
 $LogDirectory = Join-Path $Root "logs"
+$PreferredAndroidNdkVersion = "23.2.8568313"
 
 function Select-Version {
     param(
@@ -496,10 +497,13 @@ function Initialize-AndroidEnvironment {
         $env:ANDROID_HOME = $resolvedAndroidHome.Path
         $env:ANDROID_SDK_ROOT = $resolvedAndroidHome.Path
 
-        $ndkRoot = $env:ANDROID_NDK_ROOT
-        if (-not $ndkRoot) {
-            $ndkDirectory = Join-Path $resolvedAndroidHome.Path "ndk"
-            if (Test-Path -LiteralPath $ndkDirectory) {
+        $ndkDirectory = Join-Path $resolvedAndroidHome.Path "ndk"
+        if (Test-Path -LiteralPath $ndkDirectory) {
+            $preferredNdk = Join-Path $ndkDirectory $PreferredAndroidNdkVersion
+            if (Test-Path -LiteralPath $preferredNdk) {
+                $env:ANDROID_NDK_ROOT = (Resolve-Path -LiteralPath $preferredNdk).Path
+                $env:ANDROID_NDK_VERSION = $PreferredAndroidNdkVersion
+            } elseif (-not $env:ANDROID_NDK_ROOT) {
                 $latestNdk = Get-ChildItem -LiteralPath $ndkDirectory -Directory |
                     Sort-Object Name -Descending |
                     Select-Object -First 1
@@ -511,7 +515,7 @@ function Initialize-AndroidEnvironment {
         }
 
         if (-not $env:ANDROID_NDK_ROOT) {
-            throw "Android SDK was found at '$($env:ANDROID_HOME)', but no NDK is installed. Install Android NDK side-by-side in Android Studio SDK Manager, or run: sdkmanager `"ndk;28.1.13356709`""
+            throw "Android SDK was found at '$($env:ANDROID_HOME)', but no NDK is installed. Install Android NDK side-by-side in Android Studio SDK Manager, preferably: sdkmanager `"ndk;$PreferredAndroidNdkVersion`""
         }
 
         Write-Log "Android SDK: $($env:ANDROID_HOME)" Green

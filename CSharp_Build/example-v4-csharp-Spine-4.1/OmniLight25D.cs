@@ -22,8 +22,8 @@ public partial class OmniLight25D : OmniLight3D
     [Export] public bool animate_in_editor { get; set; } = false;
     private OmniLight3D _fillLight;
     private OmniLight3D _rimLight;
-    public override void _Ready() { EnsureRig(); SyncRig(1.0f); SetProcess(true); }
-    public override void _Process(double delta) { SyncRig(Engine.IsEditorHint() && !animate_in_editor ? 1.0f : GetFlickerMultiplier()); }
+    public override void _Ready() { EnsureRig(); SyncRig(1.0f); SetProcess(!Engine.IsEditorHint() || animate_in_editor); }
+    public override void _Process(double delta) { SyncRig(GetFlickerMultiplier()); }
     private void EnsureRig() { _fillLight = EnsureLight(FillLightName); _rimLight = EnsureLight(RimLightName); }
     private OmniLight3D EnsureLight(string nodeName) { if (GetNodeOrNull<OmniLight3D>(nodeName) is { } existing) return existing; var light = new OmniLight3D { Name = nodeName }; AddChild(light); return light; }
     private void SyncRig(float flickerMultiplier) { EnsureRig(); LightColor = key_color; LightEnergy = key_energy * flickerMultiplier; OmniRange = key_range; ShadowEnabled = key_shadows; _fillLight.Position = fill_offset; _fillLight.LightColor = fill_color; _fillLight.LightEnergy = fill_energy * Mathf.Lerp(1.0f, flickerMultiplier, 0.35f); _fillLight.OmniRange = fill_range; _fillLight.ShadowEnabled = false; _rimLight.Position = rim_offset; _rimLight.LightColor = rim_color; _rimLight.LightEnergy = rim_energy * Mathf.Lerp(1.0f, flickerMultiplier, 0.45f); _rimLight.OmniRange = rim_range; _rimLight.ShadowEnabled = false; }

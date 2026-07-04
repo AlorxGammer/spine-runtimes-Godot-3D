@@ -1,4 +1,4 @@
-﻿[gd_scene load_steps=3 format=3 uid="uid://dodvuj07fsynd"]
+[gd_scene load_steps=3 format=3 uid="uid://dodvuj07fsynd"]
 
 [ext_resource type="SpineSkeletonDataResource" path="res://assets/mix-and-match/mix-and-match-data.tres" id="1"]
 [ext_resource type="Script" path="res://examples/03-mix-and-match/MixAndMatch.cs" id="2"]
