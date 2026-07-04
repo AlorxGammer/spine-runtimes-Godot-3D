@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class physics : Node2D
+public partial class Physics : Node2D
 {
 	private Node2D celestial_circus;
 	
