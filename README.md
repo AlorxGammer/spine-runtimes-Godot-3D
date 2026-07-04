@@ -2,6 +2,8 @@
 
 This branch/tree is the Godot 4.3+ GDExtension build of the Spine Godot 3D runtime for Spine Runtime 4.2 data.
 
+![Spine Godot 3D preview](docs/Scene.gif)
+
 ## Project Status
 
 This is an unofficial community extension. It is not affiliated with, endorsed by, or maintained by Esoteric Software.
