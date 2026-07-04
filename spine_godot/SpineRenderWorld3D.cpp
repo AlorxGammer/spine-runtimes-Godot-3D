@@ -5,6 +5,13 @@
  * Copyright (c) 2013-2025, Esoteric Software LLC
  *****************************************************************************/
 
+/****************************************************************************
+ * Unofficial 3D extension additions.
+ *
+ * This file is distributed as part of a modified Spine Runtime package and
+ * remains subject to the Spine Runtimes License and preserved Esoteric
+ * Software notices.
+ *****************************************************************************/
 #include "SpineRenderWorld3D.h"
 
 #include "SpineSprite3D.h"
@@ -87,6 +94,49 @@ static Ref<ShaderMaterial> make_normal_map_preview_material(const Ref<Texture2D>
 	material->set_shader_parameter(StringName("spine_has_normal_texture"), normal_texture.is_valid());
 	material->set_shader_parameter(StringName("spine_alpha_cutoff"), alpha_cutoff);
 	return material;
+}
+
+static String make_spine_render_world_3d_custom_shader_code(const String &source_code, bool lighting_enabled) {
+	String code = source_code;
+	if (lighting_enabled) {
+		code = code.replace("unshaded, ", "");
+		code = code.replace(", unshaded", "");
+		code = code.replace("unshaded", "");
+	}
+	int alpha_pos = code.find("ALPHA");
+	while (alpha_pos >= 0) {
+		int assign_pos = alpha_pos + 5;
+		while (assign_pos < code.length() && (code[assign_pos] == ' ' || code[assign_pos] == '\t')) {
+			assign_pos++;
+		}
+		if (assign_pos >= code.length() || code[assign_pos] != '=') {
+			alpha_pos = code.find("ALPHA", alpha_pos + 5);
+			continue;
+		}
+		int statement_end = code.find(";", assign_pos);
+		if (statement_end < 0) {
+			break;
+		}
+		const String alpha_expression = code.substr(assign_pos + 1, statement_end - assign_pos - 1).strip_edges();
+		const String alpha_discard = "if ((" + alpha_expression + ") <= spine_alpha_cutoff) discard";
+		code = code.substr(0, alpha_pos) + alpha_discard + code.substr(statement_end);
+		alpha_pos = code.find("ALPHA", alpha_pos + alpha_discard.length());
+	}
+	if (code.find("ALPHA") < 0) {
+		code = code.replace(", blend_mix", "");
+		code = code.replace("blend_mix, ", "");
+		code = code.replace("blend_mix", "");
+	}
+	if (code.find("spine_alpha_cutoff") >= 0 && code.find("uniform float spine_alpha_cutoff") < 0) {
+		const int shader_type_pos = code.find("shader_type");
+		if (shader_type_pos >= 0) {
+			const int shader_type_end = code.find(";", shader_type_pos);
+			if (shader_type_end >= 0) {
+				code = code.substr(0, shader_type_end + 1) + "\nuniform float spine_alpha_cutoff = 0.0;\n" + code.substr(shader_type_end + 1);
+			}
+		}
+	}
+	return code;
 }
 
 static BitField<Mesh::ArrayFormat> make_dark_color_array_flags() {
@@ -295,6 +345,16 @@ Ref<Material> SpineRenderWorld3D::resolve_visible_material(int blend_mode, const
 			if (!runtime_shader_material.is_valid()) {
 				runtime_shader_material.instantiate();
 				runtime_shader_material->set_shader(source_shader_material->get_shader());
+			}
+			Ref<Shader> source_shader = source_shader_material->get_shader();
+			if (source_shader.is_valid()) {
+				const String source_code = source_shader->get_code();
+				const String runtime_code = make_spine_render_world_3d_custom_shader_code(source_code, lighting_enabled);
+				if (runtime_code != source_code) {
+					Ref<Shader> runtime_shader = memnew(Shader);
+					runtime_shader->set_code(runtime_code);
+					runtime_shader_material->set_shader(runtime_shader);
+				}
 			}
 			runtime_shader_material->set_render_priority(clamped_priority);
 			runtime_shader_material->set_shader_parameter(StringName("spine_texture"), material_texture_2d);
