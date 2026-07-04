@@ -8,11 +8,15 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="example-v4-csharp-Spine-4.2"
 run/main_scene="res://examples/04-simple-input/simple-input.tscn"
-config/features=PackedStringArray("4.3", "C#")
+config/features=PackedStringArray("4.7", "C#")
 run/low_processor_mode=true
 config/icon="res://icon.png"
 
@@ -28,7 +32,6 @@ import/blender/enabled=false
 
 batch=false
 
-
 [native_extensions]
 
 paths=["res://bin/spine_godot_extension.gdextension"]
@@ -41,6 +44,7 @@ common/enable_pause_aware_picking=true
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
 batching/parameters/max_join_item_commands=100
 batching/parameters/batch_buffer_size=65535
 batching/parameters/item_reordering_lookahead=100
