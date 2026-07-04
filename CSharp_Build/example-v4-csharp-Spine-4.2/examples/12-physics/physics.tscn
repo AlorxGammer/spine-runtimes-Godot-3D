@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://re2mg31p3vln"]
 
-[ext_resource type="Script" path="res://examples/12-physics/physics.cs" id="1_7guqn"]
+[ext_resource type="Script" path="res://examples/12-physics/Physics.cs" id="1_7guqn"]
 [ext_resource type="SpineSkeletonDataResource" path="res://assets/celestial-circus/celestial-circus-data.tres" id="2_t2blj"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_do8w3"]
