@@ -56,6 +56,7 @@ public:
 		PackedFloat32Array tangents;
 		PackedColorArray colors;
 		PackedFloat32Array dark_colors;
+		PackedFloat32Array stack_depths;
 		PackedInt32Array indices;
 		bool visible = true;
 		bool casts_shadow = false;
@@ -87,16 +88,16 @@ private:
 	void ensure_runtime_nodes();
 	void collect_from_node(Node *node, int &collector_object_index);
 	void rebuild_stream_mesh();
-	void append_part_to_arrays(const RenderPart &part, PackedVector3Array &vertices, PackedVector2Array &uvs, PackedVector3Array &normals, PackedFloat32Array &tangents, PackedColorArray &colors, PackedFloat32Array &dark_colors, PackedInt32Array &indices) const;
+	void append_part_to_arrays(const RenderPart &part, PackedVector3Array &vertices, PackedVector2Array &uvs, PackedVector3Array &normals, PackedFloat32Array &tangents, PackedColorArray &colors, PackedFloat32Array &dark_colors, PackedFloat32Array &stack_depths, PackedInt32Array &indices) const;
 
 public:
 	SpineRenderWorld3D();
 
 	void begin_frame();
-	Ref<Material> resolve_visible_material(int blend_mode, const Ref<Texture> &texture, const Ref<Texture> &normal_map, const Ref<Material> &custom_material, bool lighting_enabled, bool generated_normal_map_enabled, bool generated_normal_map_preview, bool two_color_tint, float generated_normal_scale, float generated_normal_max_slope, float generated_normal_dark_suppression, float generated_standard_specular, float generated_standard_roughness, float generated_standard_metallic, float generated_shader_light_scale, float generated_shader_ambient, float visible_alpha_cutoff) const;
-	Ref<Material> resolve_shadow_material(const Ref<Texture> &texture, float shadow_alpha_cutoff, int shadow_casting_mode) const;
-	void submit_part(int object_order, int collector_object_index, int slot_order, int tie_breaker, const Ref<Material> &material, bool casts_shadow, const Ref<Material> &shadow_material, const PackedVector3Array &vertices, const PackedVector2Array &uvs, const PackedVector3Array &normals, const PackedFloat32Array &tangents, const PackedColorArray &colors, const PackedFloat32Array &dark_colors, const PackedInt32Array &indices);
-	void submit_run(int object_order, int collector_object_index, int first_slot_order, int last_slot_order, const Ref<Material> &material, bool casts_shadow, const Ref<Material> &shadow_material, const PackedVector3Array &vertices, const PackedVector2Array &uvs, const PackedVector3Array &normals, const PackedFloat32Array &tangents, const PackedColorArray &colors, const PackedFloat32Array &dark_colors, const PackedInt32Array &indices);
+	Ref<Material> resolve_visible_material(int blend_mode, const Ref<Texture> &texture, const Ref<Texture> &normal_map, const Ref<Material> &custom_material, bool lighting_enabled, bool double_sided_geometry, bool generated_normal_map_enabled, bool generated_normal_map_preview, bool two_color_tint, float generated_normal_scale, float generated_normal_max_slope, float generated_normal_dark_suppression, float generated_standard_specular, float generated_standard_roughness, float generated_standard_metallic, float generated_shader_light_scale, float generated_shader_ambient, float visible_alpha_cutoff) const;
+	Ref<Material> resolve_shadow_material(const Ref<Texture> &texture, float shadow_alpha_cutoff, int shadow_casting_mode, bool double_sided_geometry) const;
+	void submit_part(int object_order, int collector_object_index, int slot_order, int tie_breaker, const Ref<Material> &material, bool casts_shadow, const Ref<Material> &shadow_material, const PackedVector3Array &vertices, const PackedVector2Array &uvs, const PackedVector3Array &normals, const PackedFloat32Array &tangents, const PackedColorArray &colors, const PackedFloat32Array &dark_colors, const PackedFloat32Array &stack_depths, const PackedInt32Array &indices);
+	void submit_run(int object_order, int collector_object_index, int first_slot_order, int last_slot_order, const Ref<Material> &material, bool casts_shadow, const Ref<Material> &shadow_material, const PackedVector3Array &vertices, const PackedVector2Array &uvs, const PackedVector3Array &normals, const PackedFloat32Array &tangents, const PackedColorArray &colors, const PackedFloat32Array &dark_colors, const PackedFloat32Array &stack_depths, const PackedInt32Array &indices);
 	void end_frame();
 	void render_now();
 
