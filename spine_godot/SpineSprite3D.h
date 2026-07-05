@@ -105,6 +105,7 @@ private:
 		PackedFloat32Array tangents;
 		PackedColorArray colors;
 		PackedFloat32Array dark_colors;
+		PackedFloat32Array stack_depths;
 		PackedInt32Array indices;
 	};
 
@@ -126,6 +127,7 @@ private:
 	int render_backend;
 	int stream_render_order;
 	bool lighting_enabled;
+	bool double_sided;
 	GeometryInstance3D::ShadowCastingSetting shadow_casting_mode;
 	float shadow_alpha_cutoff;
 	float visible_alpha_cutoff;
@@ -182,9 +184,6 @@ private:
 	mutable std::unordered_map<uint64_t, Ref<Material>> generated_material_cache;
 	mutable std::unordered_map<uint64_t, Ref<StandardMaterial3D>> generated_shadow_material_cache;
 	mutable std::unordered_map<uint64_t, Ref<Material>> custom_material_priority_cache;
-	Vector3 last_runtime_slot_stack_axis_local;
-	bool last_runtime_slot_stack_axis_valid;
-
 	bool diagnostics_enabled;
 	int diagnostics_counter;
 	int last_generated_slot_count;
@@ -223,13 +222,11 @@ private:
 	void clear_runtime_mesh_surfaces();
 	bool build_render_runs(std::vector<RenderRun> &runs, bool stream_space, SpineRenderWorld3D *render_world, spine::Skeleton *&skeleton_object, Vector3 &slot_stack_axis_local, float &effective_depth_scale, int &slot_count);
 	void rebuild_debug_mesh(spine::Skeleton *skeleton_object, const Vector3 &slot_stack_axis_local, float effective_depth_scale, int slot_count);
-	void refresh_view_dependent_render_state();
 	SpineSlotNode3D *find_ancestor_slot_node() const;
 	SpineRenderWorld3D *find_stream_world() const;
 	Vector3 get_slot_stack_axis_local() const;
 	float get_effective_depth_scale_for_axis(const Vector3 &axis_local) const;
 	float get_effective_depth_scale() const;
-	bool should_reverse_slot_stack() const;
 	bool should_stream_to_world() const;
 	bool get_effective_reverse_slot_stack() const;
 	int compute_slot_insert_band_render_priority(int draw_order_index, int slot_count, float t) const;
@@ -300,6 +297,8 @@ public:
 	int get_stream_render_order() const { return stream_render_order; }
 	void set_lighting_enabled(bool v);
 	bool is_lighting_enabled() const { return lighting_enabled; }
+	void set_double_sided(bool v);
+	bool is_double_sided() const { return double_sided; }
 	void set_shadow_casting_mode(int v);
 	int get_shadow_casting_mode() const { return (int)shadow_casting_mode; }
 	void set_shadow_alpha_cutoff(float v);
