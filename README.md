@@ -16,6 +16,7 @@ Current validation notes:
 - Build/export validation has currently been performed mainly on Windows and Android.
 - Runtime/platform testing is still ongoing; Linux is not fully validated yet.
 - `custom-material-3D` is still in development and may not behave identically across all render paths.
+- The `SpineSprite3D.double_sided` GPU view-stack rendering fix has been ported to all maintained Spine runtime trees.
 - The freshest fixes are expected to land first in the `Spine-4.2` branch.
 - The `Spine-4.3` branch will be adjusted further after the official Spine 4.3 runtime branch settles upstream.
 
@@ -31,6 +32,14 @@ Current validation notes:
 | C# Web | Not supported by Godot 4 C# |
 
 Godot/godot-cpp 4.1 and 4.2 are intentionally not supported in this release layout. Spine Runtime 4.2 remains a valid Spine data/runtime version in its own Spine-4.2 tree; that is separate from Godot 4.2 support.
+
+## 3D Double-Sided Rendering
+
+`SpineSprite3D` includes a `double_sided` option for true two-sided 3D rendering. When enabled, the runtime keeps the normal front-side Spine slot order and also renders the back side with the inverse stack order, so the character remains assembled correctly from both sides instead of relying on Godot material culling alone.
+
+The slot stack depth is now sent to the shader and offset per render pass on the GPU. This removes the old CPU dependency on a selected camera for slot assembly, so mirrors, SubViewports, editor cameras, and multiple runtime cameras can render the same object with the correct local stack direction in their own pass.
+
+Generated and runtime custom shaders also handle backface lighting by flipping the normal and binormal on back faces. This keeps normal maps and 2D-lighting-style materials readable on the rear side when `double_sided` is enabled.
 
 ## Layout
 
