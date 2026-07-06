@@ -7,7 +7,7 @@ path="res://.godot/imported/coin.atlas-26bb6f5fb1c32b0b5cb5398d3330824b.spatlas"
 
 [deps]
 
-source_file="res://assets/Coin/coin.atlas"
+source_file="res://assets/coin/coin.atlas"
 dest_files=["res://.godot/imported/coin.atlas-26bb6f5fb1c32b0b5cb5398d3330824b.spatlas"]
 
 [params]

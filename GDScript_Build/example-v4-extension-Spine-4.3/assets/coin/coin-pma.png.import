@@ -10,7 +10,7 @@ metadata={
 
 [deps]
 
-source_file="res://assets/Coin/coin-pma.png"
+source_file="res://assets/coin/coin-pma.png"
 dest_files=["res://.godot/imported/coin-pma.png-ee2f74b750cd5c3124da222a5e0c2c3e.ctex"]
 
 [params]

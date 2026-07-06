@@ -7,7 +7,7 @@ path="res://.godot/imported/coin-pma.atlas-a96399eec0c02a06efbc0b8e6a5aa332.spat
 
 [deps]
 
-source_file="res://assets/Coin/coin-pma.atlas"
+source_file="res://assets/coin/coin-pma.atlas"
 dest_files=["res://.godot/imported/coin-pma.atlas-a96399eec0c02a06efbc0b8e6a5aa332.spatlas"]
 
 [params]

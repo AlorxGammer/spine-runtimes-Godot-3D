@@ -84,6 +84,27 @@ struct SpineSprite3DDebugSurfaceBuilder {
 	}
 };
 
+static void spine_sprite_3d_hash_mix(uint64_t &seed, uint64_t value) {
+	value += 0x9e3779b97f4a7c15ULL;
+	value = (value ^ (value >> 30)) * 0xbf58476d1ce4e5b9ULL;
+	value = (value ^ (value >> 27)) * 0x94d049bb133111ebULL;
+	seed ^= value ^ (seed << 6) ^ (seed >> 2);
+}
+
+static uint64_t make_spine_sprite_3d_material_cache_key(uint64_t salt, spine::BlendMode blend_mode, const Ref<Texture> &texture, const Ref<Texture> &normal_map, const Ref<Material> &custom_material, int render_priority, bool lighting_enabled, bool double_sided_geometry, bool generated_normal_map_preview, bool two_color_tint) {
+	uint64_t key = salt;
+	spine_sprite_3d_hash_mix(key, (uint64_t)blend_mode);
+	spine_sprite_3d_hash_mix(key, texture.is_valid() ? (uint64_t)texture->get_instance_id() : 0);
+	spine_sprite_3d_hash_mix(key, normal_map.is_valid() ? (uint64_t)normal_map->get_instance_id() : 0);
+	spine_sprite_3d_hash_mix(key, custom_material.is_valid() ? (uint64_t)custom_material->get_instance_id() : 0);
+	spine_sprite_3d_hash_mix(key, (uint64_t)(CLAMP(render_priority, -128, 127) + 128));
+	spine_sprite_3d_hash_mix(key, lighting_enabled ? 1ULL : 0ULL);
+	spine_sprite_3d_hash_mix(key, double_sided_geometry ? 1ULL : 0ULL);
+	spine_sprite_3d_hash_mix(key, generated_normal_map_preview ? 1ULL : 0ULL);
+	spine_sprite_3d_hash_mix(key, two_color_tint ? 1ULL : 0ULL);
+	return key;
+}
+
 static void build_spine_sprite_3d_tangents(const PackedVector3Array &vertices, const PackedVector2Array &uvs, const PackedInt32Array &indices, const Vector3 &normal, bool flip_green_channel, PackedFloat32Array &tangents) {
 	const int vertex_count = vertices.size();
 	tangents.resize(vertex_count * 4);
@@ -259,9 +280,7 @@ static Ref<ShaderMaterial> make_normal_map_preview_material(const Ref<Texture2D>
 	if (double_sided_geometry) {
 		vertex_code =
 				"void vertex() {\n"
-				"	vec3 view_world = CAMERA_POSITION_WORLD - NODE_POSITION_WORLD;\n"
-				"	if (dot(view_world, view_world) < 0.000001) view_world = -CAMERA_DIRECTION_WORLD;\n"
-				"	vec3 view_local = normalize((inverse(MODEL_MATRIX) * vec4(normalize(view_world), 0.0)).xyz);\n"
+				"	vec3 view_local = normalize(inverse(mat3(MODELVIEW_MATRIX)) * vec3(0.0, 0.0, 1.0));\n"
 				"	VERTEX += view_local * CUSTOM1.x;\n"
 				"}\n";
 	}
@@ -310,14 +329,8 @@ static BitField<Mesh::ArrayFormat> make_spine_sprite_3d_custom_array_flags(bool 
 }
 
 static String make_spine_sprite_3d_view_stack_vertex_code() {
-	return "	vec3 view_world = CAMERA_POSITION_WORLD - NODE_POSITION_WORLD;\n"
-		   "	if (dot(view_world, view_world) < 0.000001) view_world = -CAMERA_DIRECTION_WORLD;\n"
-		   "	vec3 view_local = normalize((inverse(MODEL_MATRIX) * vec4(normalize(view_world), 0.0)).xyz);\n"
+	return "	vec3 view_local = normalize(inverse(mat3(MODELVIEW_MATRIX)) * vec3(0.0, 0.0, 1.0));\n"
 		   "	VERTEX += view_local * CUSTOM1.x;\n";
-}
-
-static String make_spine_sprite_3d_view_stack_function_code() {
-	return String("void spine_apply_view_stack() {\n") + make_spine_sprite_3d_view_stack_vertex_code() + "}\n";
 }
 
 static String make_spine_sprite_3d_double_sided_lighting_code() {
@@ -327,34 +340,111 @@ static String make_spine_sprite_3d_double_sided_lighting_code() {
 		   "	}\n";
 }
 
-static String make_spine_sprite_3d_double_sided_lighting_function_code() {
-	return String("void spine_apply_double_sided_lighting() {\n") + make_spine_sprite_3d_double_sided_lighting_code() + "}\n";
+static String get_spine_sprite_3d_blend_render_mode(spine::BlendMode blend_mode) {
+	switch (blend_mode) {
+		case spine::BlendMode_Additive:
+		case spine::BlendMode_Screen:
+			return "blend_add";
+		case spine::BlendMode_Multiply:
+			return "blend_mul";
+		case spine::BlendMode_Normal:
+		default:
+			return "blend_mix";
+	}
 }
 
-static String make_spine_sprite_3d_custom_shader_code(const String &source_code, bool lighting_enabled, bool double_sided_geometry) {
-	String code = source_code;
-	if (lighting_enabled) {
-		code = code.replace("unshaded, ", "");
-		code = code.replace(", unshaded", "");
-		code = code.replace("unshaded", "");
+static String remove_spine_sprite_3d_render_mode_token(String code, const String &token) {
+	int render_mode_pos = code.find("render_mode");
+	while (render_mode_pos >= 0) {
+		const int statement_end = code.find(";", render_mode_pos);
+		if (statement_end < 0) break;
+
+		String statement = code.substr(render_mode_pos, statement_end - render_mode_pos + 1);
+		statement = statement.replace(String(", ") + token, "");
+		statement = statement.replace(token + String(", "), "");
+		statement = statement.replace(token + String(","), "");
+		statement = statement.replace(token, "");
+		statement = statement.replace("render_mode ,", "render_mode ");
+		statement = statement.replace("render_mode  ", "render_mode ");
+		statement = statement.replace(", ;", ";");
+		statement = statement.replace(",;", ";");
+
+		code = code.substr(0, render_mode_pos) + statement + code.substr(statement_end + 1);
+		render_mode_pos = code.find("render_mode", render_mode_pos + statement.length());
 	}
-	if (double_sided_geometry && code.find("spine_apply_view_stack") < 0) {
-		const int shader_type_pos = code.find("shader_type");
-		if (shader_type_pos >= 0) {
-			const int shader_type_end = code.find(";", shader_type_pos);
-			if (shader_type_end >= 0) {
-				code = code.substr(0, shader_type_end + 1) + "\n" + make_spine_sprite_3d_view_stack_function_code() + make_spine_sprite_3d_double_sided_lighting_function_code() + code.substr(shader_type_end + 1);
+	return code;
+}
+
+static String ensure_spine_sprite_3d_render_mode_token(String code, const String &token) {
+	const int render_mode_pos = code.find("render_mode");
+	if (render_mode_pos >= 0) {
+		const int statement_end = code.find(";", render_mode_pos);
+		if (statement_end >= 0) {
+			const String statement = code.substr(render_mode_pos, statement_end - render_mode_pos + 1);
+			if (statement.find(token) >= 0) return code;
+
+			String prefix = code.substr(0, statement_end);
+			const String stripped = statement.strip_edges();
+			if (stripped == "render_mode" || stripped == "render_mode;") {
+				prefix += " " + token;
+			} else {
+				prefix += ", " + token;
 			}
+			return prefix + code.substr(statement_end);
 		}
+	}
+
+	const int shader_type_pos = code.find("shader_type");
+	if (shader_type_pos >= 0) {
+		const int shader_type_end = code.find(";", shader_type_pos);
+		if (shader_type_end >= 0) {
+			return code.substr(0, shader_type_end + 1) + "\nrender_mode " + token + ";\n" + code.substr(shader_type_end + 1);
+		}
+	}
+	return "render_mode " + token + ";\n" + code;
+}
+
+static String normalize_spine_sprite_3d_custom_shader_render_modes(String code, spine::BlendMode blend_mode, bool lighting_enabled) {
+	code = remove_spine_sprite_3d_render_mode_token(code, "cull_back");
+	code = remove_spine_sprite_3d_render_mode_token(code, "cull_front");
+	code = remove_spine_sprite_3d_render_mode_token(code, "cull_disabled");
+	code = ensure_spine_sprite_3d_render_mode_token(code, "cull_disabled");
+
+	code = remove_spine_sprite_3d_render_mode_token(code, "blend_mix");
+	code = remove_spine_sprite_3d_render_mode_token(code, "blend_add");
+	code = remove_spine_sprite_3d_render_mode_token(code, "blend_sub");
+	code = remove_spine_sprite_3d_render_mode_token(code, "blend_mul");
+	code = remove_spine_sprite_3d_render_mode_token(code, "blend_premul_alpha");
+	code = remove_spine_sprite_3d_render_mode_token(code, "blend_disabled");
+	code = ensure_spine_sprite_3d_render_mode_token(code, get_spine_sprite_3d_blend_render_mode(blend_mode));
+
+	code = remove_spine_sprite_3d_render_mode_token(code, "depth_draw_opaque");
+	code = remove_spine_sprite_3d_render_mode_token(code, "depth_draw_always");
+	code = remove_spine_sprite_3d_render_mode_token(code, "depth_draw_never");
+	code = remove_spine_sprite_3d_render_mode_token(code, "depth_prepass_alpha");
+	code = ensure_spine_sprite_3d_render_mode_token(code, "depth_prepass_alpha");
+
+	code = remove_spine_sprite_3d_render_mode_token(code, "unshaded");
+	if (!lighting_enabled) {
+		code = ensure_spine_sprite_3d_render_mode_token(code, "unshaded");
+	}
+
+	return code;
+}
+
+static String make_spine_sprite_3d_custom_shader_code(const String &source_code, spine::BlendMode blend_mode, bool lighting_enabled, bool double_sided_geometry) {
+	String code = source_code;
+	code = normalize_spine_sprite_3d_custom_shader_render_modes(code, blend_mode, lighting_enabled);
+	if (double_sided_geometry && code.find("CUSTOM1.x") < 0) {
 		const int vertex_pos = code.find("void vertex()");
 		if (vertex_pos >= 0) {
 			const int body_pos = code.find("{", vertex_pos);
 			if (body_pos >= 0) {
-				code = code.substr(0, body_pos + 1) + "\n	spine_apply_view_stack();\n" + code.substr(body_pos + 1);
+				code = code.substr(0, body_pos + 1) + "\n" + make_spine_sprite_3d_view_stack_vertex_code() + code.substr(body_pos + 1);
 			}
 		} else {
 			const int fragment_pos = code.find("void fragment()");
-			const String vertex_function = "void vertex() {\n	spine_apply_view_stack();\n}\n";
+			const String vertex_function = "void vertex() {\n" + make_spine_sprite_3d_view_stack_vertex_code() + "}\n";
 			if (fragment_pos >= 0) {
 				code = code.substr(0, fragment_pos) + vertex_function + code.substr(fragment_pos);
 			} else {
@@ -365,7 +455,7 @@ static String make_spine_sprite_3d_custom_shader_code(const String &source_code,
 		if (fragment_pos >= 0) {
 			const int body_pos = code.find("{", fragment_pos);
 			if (body_pos >= 0) {
-				code = code.substr(0, body_pos + 1) + "\n	spine_apply_double_sided_lighting();\n" + code.substr(body_pos + 1);
+				code = code.substr(0, body_pos + 1) + "\n" + make_spine_sprite_3d_double_sided_lighting_code() + code.substr(body_pos + 1);
 			}
 		}
 	}
@@ -384,9 +474,9 @@ static String make_spine_sprite_3d_custom_shader_code(const String &source_code,
 			break;
 		}
 		const String alpha_expression = code.substr(assign_pos + 1, statement_end - assign_pos - 1).strip_edges();
-		const String alpha_discard = "if ((" + alpha_expression + ") <= spine_alpha_cutoff) discard";
-		code = code.substr(0, alpha_pos) + alpha_discard + code.substr(statement_end);
-		alpha_pos = code.find("ALPHA", alpha_pos + alpha_discard.length());
+		const String alpha_assignment = "ALPHA = " + alpha_expression + ";\n	if (ALPHA <= spine_alpha_cutoff) discard";
+		code = code.substr(0, alpha_pos) + alpha_assignment + code.substr(statement_end);
+		alpha_pos = code.find("ALPHA", alpha_pos + alpha_assignment.length());
 	}
 	if (code.find("ALPHA") < 0) {
 		code = code.replace(", blend_mix", "");
@@ -403,6 +493,86 @@ static String make_spine_sprite_3d_custom_shader_code(const String &source_code,
 		}
 	}
 	return code;
+}
+
+static void apply_spine_sprite_3d_base_material_contract(Ref<BaseMaterial3D> base_material, spine::BlendMode blend_mode, const Ref<Texture> &texture, const Ref<Texture> &normal_map, bool lighting_enabled, bool generated_normal_map_enabled, float generated_normal_scale, float generated_standard_specular, float generated_standard_roughness, float generated_standard_metallic, float generated_shader_light_scale, float generated_shader_ambient) {
+	if (!base_material.is_valid()) return;
+
+	base_material->set_shading_mode(lighting_enabled ? BaseMaterial3D::SHADING_MODE_PER_PIXEL : BaseMaterial3D::SHADING_MODE_UNSHADED);
+	base_material->set_cull_mode(BaseMaterial3D::CULL_DISABLED);
+	base_material->set_flag(BaseMaterial3D::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
+	base_material->set_transparency(BaseMaterial3D::TRANSPARENCY_ALPHA_DEPTH_PRE_PASS);
+	base_material->set_depth_draw_mode(BaseMaterial3D::DEPTH_DRAW_OPAQUE_ONLY);
+	base_material->set_texture(BaseMaterial3D::TEXTURE_ALBEDO, texture);
+	base_material->set("alpha_scissor_threshold", 0.0f);
+
+	Color albedo = base_material->get_albedo();
+	base_material->set_albedo(Color(albedo.r * generated_shader_light_scale, albedo.g * generated_shader_light_scale, albedo.b * generated_shader_light_scale, albedo.a));
+
+	if (generated_shader_ambient > 0.0f) {
+		base_material->set_feature(BaseMaterial3D::FEATURE_EMISSION, true);
+		base_material->set_texture(BaseMaterial3D::TEXTURE_EMISSION, texture);
+		base_material->set_emission(Color(1.0f, 1.0f, 1.0f));
+		base_material->set_emission_energy_multiplier(generated_shader_ambient);
+	}
+
+	if (generated_normal_map_enabled && normal_map.is_valid()) {
+		base_material->set_feature(BaseMaterial3D::FEATURE_NORMAL_MAPPING, true);
+		base_material->set_texture(BaseMaterial3D::TEXTURE_NORMAL, normal_map);
+		base_material->set_normal_scale(generated_normal_scale);
+	}
+
+	if (lighting_enabled) {
+		base_material->set_metallic(generated_standard_metallic);
+		base_material->set_specular(generated_standard_specular);
+		base_material->set_roughness(generated_standard_roughness);
+		base_material->set_specular_mode(generated_standard_specular <= 0.000001f ? BaseMaterial3D::SPECULAR_DISABLED : BaseMaterial3D::SPECULAR_SCHLICK_GGX);
+	}
+
+	switch (blend_mode) {
+		case spine::BlendMode_Additive:
+		case spine::BlendMode_Screen:
+			base_material->set_blend_mode(BaseMaterial3D::BLEND_MODE_ADD);
+			break;
+		case spine::BlendMode_Multiply:
+			base_material->set_blend_mode(BaseMaterial3D::BLEND_MODE_MUL);
+			break;
+		case spine::BlendMode_Normal:
+		default:
+			base_material->set_blend_mode(BaseMaterial3D::BLEND_MODE_MIX);
+			break;
+	}
+}
+
+static void set_spine_sprite_3d_shader_material_parameters(const Ref<ShaderMaterial> &material, const Ref<Texture2D> &diffuse_texture, const Ref<Texture2D> &normal_texture, bool use_normal_texture, float normal_scale, float normal_max_slope, float normal_dark_suppression, float light_scale, float ambient, float specular, float roughness, float metallic, float alpha_cutoff) {
+	if (!material.is_valid()) return;
+
+	material->set_shader_parameter(StringName("spine_texture"), diffuse_texture);
+	material->set_shader_parameter(StringName("texture_albedo"), diffuse_texture);
+	material->set_shader_parameter(StringName("albedo_texture"), diffuse_texture);
+	material->set_shader_parameter(StringName("diffuse_texture"), diffuse_texture);
+	material->set_shader_parameter(StringName("spine_normal_texture"), normal_texture);
+	material->set_shader_parameter(StringName("texture_normal"), normal_texture);
+	material->set_shader_parameter(StringName("normal_texture"), normal_texture);
+	material->set_shader_parameter(StringName("normal_map"), normal_texture);
+	material->set_shader_parameter(StringName("spine_use_normal_texture"), use_normal_texture);
+	material->set_shader_parameter(StringName("use_normal_texture"), use_normal_texture);
+	material->set_shader_parameter(StringName("spine_normal_scale"), normal_scale);
+	material->set_shader_parameter(StringName("normal_scale"), normal_scale);
+	material->set_shader_parameter(StringName("spine_normal_max_slope"), normal_max_slope);
+	material->set_shader_parameter(StringName("spine_normal_dark_suppression"), normal_dark_suppression);
+	material->set_shader_parameter(StringName("spine_light_scale"), light_scale);
+	material->set_shader_parameter(StringName("light_scale"), light_scale);
+	material->set_shader_parameter(StringName("spine_ambient"), ambient);
+	material->set_shader_parameter(StringName("ambient"), ambient);
+	material->set_shader_parameter(StringName("spine_specular"), specular);
+	material->set_shader_parameter(StringName("specular"), specular);
+	material->set_shader_parameter(StringName("spine_roughness"), roughness);
+	material->set_shader_parameter(StringName("roughness"), roughness);
+	material->set_shader_parameter(StringName("spine_metallic"), metallic);
+	material->set_shader_parameter(StringName("metallic"), metallic);
+	material->set_shader_parameter(StringName("spine_alpha_cutoff"), alpha_cutoff);
+	material->set_shader_parameter(StringName("alpha_cutoff"), alpha_cutoff);
 }
 
 static Ref<ShaderMaterial> make_two_color_material(spine::BlendMode blend_mode, const Ref<Texture2D> &diffuse_texture, const Ref<Texture2D> &normal_texture, int render_priority, bool lighting_enabled, bool double_sided_geometry, bool use_normal_texture, float normal_scale, float standard_specular, float standard_roughness, float standard_metallic, float light_scale, float ambient, float alpha_cutoff) {
@@ -1414,14 +1584,7 @@ Ref<Material> SpineSprite3D::resolve_visible_slot_material(spine::BlendMode blen
 	Ref<Texture2D> material_texture_2d = texture;
 	Ref<Texture2D> material_normal_texture_2d = material_normal_map;
 
-	const uint64_t texture_id = texture.is_valid() ? texture->get_instance_id() : 0;
-	const uint64_t normal_map_id = material_normal_map.is_valid() ? material_normal_map->get_instance_id() : 0;
-	const uint64_t priority_key = (uint64_t)(clamped_priority + 128);
-	const uint64_t lighting_key = lighting_enabled ? 1ULL : 0ULL;
-	const uint64_t preview_key = generated_normal_map_preview ? 1ULL : 0ULL;
-	const uint64_t two_color_key = two_color_tint ? 1ULL : 0ULL;
-	const uint64_t double_sided_key = double_sided ? 1ULL : 0ULL;
-	const uint64_t generated_cache_key = (texture_id << 27) ^ (normal_map_id << 15) ^ (priority_key << 7) ^ (lighting_key << 6) ^ (preview_key << 5) ^ (two_color_key << 4) ^ (double_sided_key << 3) ^ (uint64_t)blend_mode;
+	const uint64_t generated_cache_key = make_spine_sprite_3d_material_cache_key(0x535052334447454eULL, blend_mode, texture, material_normal_map, Ref<Material>(), clamped_priority, lighting_enabled, double_sided, generated_normal_map_preview, two_color_tint);
 
 	if (generated_normal_map_preview) {
 		auto preview_it = generated_material_cache.find(generated_cache_key);
@@ -1444,14 +1607,7 @@ Ref<Material> SpineSprite3D::resolve_visible_slot_material(spine::BlendMode blen
 	}
 
 	if (custom_material.is_valid()) {
-		const uint64_t material_id = custom_material->get_instance_id();
-		const uint64_t texture_id = texture.is_valid() ? texture->get_instance_id() : 0;
-		const uint64_t normal_map_id = material_normal_map.is_valid() ? material_normal_map->get_instance_id() : 0;
-		const uint64_t priority_key = (uint64_t)(clamped_priority + 128);
-		const uint64_t lighting_key = lighting_enabled ? 1ULL : 0ULL;
-		const uint64_t blend_key = (uint64_t)blend_mode;
-		const uint64_t double_sided_key = double_sided ? 1ULL : 0ULL;
-		const uint64_t cache_key = (material_id << 41) ^ (texture_id << 17) ^ (normal_map_id << 9) ^ (priority_key << 4) ^ (lighting_key << 3) ^ (double_sided_key << 2) ^ blend_key;
+		const uint64_t cache_key = make_spine_sprite_3d_material_cache_key(0x5350523344435553ULL, blend_mode, texture, material_normal_map, custom_material, clamped_priority, lighting_enabled, double_sided, generated_normal_map_preview, two_color_tint);
 		auto custom_it = custom_material_priority_cache.find(cache_key);
 		if (custom_it != custom_material_priority_cache.end()) {
 			return custom_it->second;
@@ -1467,7 +1623,7 @@ Ref<Material> SpineSprite3D::resolve_visible_slot_material(spine::BlendMode blen
 			Ref<Shader> source_shader = source_shader_material->get_shader();
 			if (source_shader.is_valid()) {
 				const String source_code = source_shader->get_code();
-				const String runtime_code = make_spine_sprite_3d_custom_shader_code(source_code, lighting_enabled, double_sided);
+				const String runtime_code = make_spine_sprite_3d_custom_shader_code(source_code, blend_mode, lighting_enabled, double_sided);
 				if (runtime_code != source_code) {
 					Ref<Shader> runtime_shader = memnew(Shader);
 					runtime_shader->set_code(runtime_code);
@@ -1475,18 +1631,7 @@ Ref<Material> SpineSprite3D::resolve_visible_slot_material(spine::BlendMode blen
 				}
 			}
 			runtime_shader_material->set_render_priority(clamped_priority);
-			runtime_shader_material->set_shader_parameter(StringName("spine_texture"), material_texture_2d);
-			runtime_shader_material->set_shader_parameter(StringName("spine_normal_texture"), material_normal_texture_2d);
-			runtime_shader_material->set_shader_parameter(StringName("spine_use_normal_texture"), generated_normal_map_enabled && material_normal_texture_2d.is_valid());
-			runtime_shader_material->set_shader_parameter(StringName("spine_normal_scale"), generated_normal_scale);
-			runtime_shader_material->set_shader_parameter(StringName("spine_normal_max_slope"), generated_normal_max_slope);
-			runtime_shader_material->set_shader_parameter(StringName("spine_normal_dark_suppression"), generated_normal_dark_suppression);
-			runtime_shader_material->set_shader_parameter(StringName("spine_light_scale"), generated_shader_light_scale);
-			runtime_shader_material->set_shader_parameter(StringName("spine_ambient"), generated_shader_ambient);
-			runtime_shader_material->set_shader_parameter(StringName("spine_specular"), generated_standard_specular);
-			runtime_shader_material->set_shader_parameter(StringName("spine_roughness"), generated_standard_roughness);
-			runtime_shader_material->set_shader_parameter(StringName("spine_metallic"), generated_standard_metallic);
-			runtime_shader_material->set_shader_parameter(StringName("spine_alpha_cutoff"), visible_alpha_cutoff);
+			set_spine_sprite_3d_shader_material_parameters(runtime_shader_material, material_texture_2d, material_normal_texture_2d, generated_normal_map_enabled && material_normal_texture_2d.is_valid(), generated_normal_scale, generated_normal_max_slope, generated_normal_dark_suppression, generated_shader_light_scale, generated_shader_ambient, generated_standard_specular, generated_standard_roughness, generated_standard_metallic, visible_alpha_cutoff);
 			custom_material_priority_cache.emplace(cache_key, runtime_shader_material);
 			return runtime_shader_material;
 		}
@@ -1499,34 +1644,7 @@ Ref<Material> SpineSprite3D::resolve_visible_slot_material(spine::BlendMode blen
 		duplicated->set("render_priority", clamped_priority);
 
 		Ref<BaseMaterial3D> base_material = duplicated;
-		if (base_material.is_valid()) {
-			base_material->set_cull_mode(BaseMaterial3D::CULL_DISABLED);
-			base_material->set_flag(BaseMaterial3D::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
-			base_material->set_transparency(BaseMaterial3D::TRANSPARENCY_ALPHA_DEPTH_PRE_PASS);
-			base_material->set_depth_draw_mode(BaseMaterial3D::DEPTH_DRAW_OPAQUE_ONLY);
-			base_material->set_albedo(Color(generated_shader_light_scale, generated_shader_light_scale, generated_shader_light_scale, 1.0f));
-			base_material->set_texture(BaseMaterial3D::TEXTURE_ALBEDO, texture);
-			if (generated_shader_ambient > 0.0f) {
-				base_material->set_feature(BaseMaterial3D::FEATURE_EMISSION, true);
-				base_material->set_texture(BaseMaterial3D::TEXTURE_EMISSION, texture);
-				base_material->set_emission(Color(1.0f, 1.0f, 1.0f));
-				base_material->set_emission_energy_multiplier(generated_shader_ambient);
-			}
-			// Atlas imports use normal_map_prefix (for example raptor.png -> n_raptor.png).
-			// Keep this wired for all Spine runtime builds so 3D lighting matches 2D.
-			if (generated_normal_map_enabled && material_normal_map.is_valid()) {
-				base_material->set_feature(BaseMaterial3D::FEATURE_NORMAL_MAPPING, true);
-				base_material->set_texture(BaseMaterial3D::TEXTURE_NORMAL, material_normal_map);
-				base_material->set_normal_scale(generated_normal_scale);
-			}
-			if (lighting_enabled) {
-				base_material->set_metallic(generated_standard_metallic);
-				base_material->set_specular(generated_standard_specular);
-				base_material->set_roughness(generated_standard_roughness);
-				base_material->set_specular_mode(generated_standard_specular <= 0.000001f ? BaseMaterial3D::SPECULAR_DISABLED : BaseMaterial3D::SPECULAR_SCHLICK_GGX);
-			}
-			base_material->set("alpha_scissor_threshold", 0.0f);
-		}
+		apply_spine_sprite_3d_base_material_contract(base_material, blend_mode, texture, material_normal_map, lighting_enabled, generated_normal_map_enabled, generated_normal_scale, generated_standard_specular, generated_standard_roughness, generated_standard_metallic, generated_shader_light_scale, generated_shader_ambient);
 
 		custom_material_priority_cache.emplace(cache_key, duplicated);
 		return duplicated;
