@@ -1,12 +1,13 @@
-[gd_scene load_steps=3 format=3 uid="uid://bkngn6d58s2fe"]
+[gd_scene format=3 uid="uid://bkngn6d58s2fe"]
 
 [ext_resource type="SpineSkeletonDataResource" path="res://assets/mix-and-match/mix-and-match-data.tres" id="1_raxkl"]
-[ext_resource type="Script" path="res://examples3D/03-mix-and-match-3D/mix-and-match-3D.gd" id="2_dis8b"]
+[ext_resource type="Script" uid="uid://cxnovxa1eh6rn" path="res://examples3D/03-mix-and-match-3D/mix-and-match-3D.gd" id="2_dis8b"]
 
-[node name="Node3D" type="Node3D"]
+[node name="Node3D" type="Node3D" unique_id=1082655825]
 
-[node name="MixAndMatch" type="SpineSprite3D" parent="."]
+[node name="MixAndMatch" type="SpineSprite3D" parent="." unique_id=10358872]
 skeleton_data_res = ExtResource("1_raxkl")
+double_sided = true
 preview_skin = "Default"
 preview_animation = "-- Empty --"
 preview_frame = false
@@ -14,5 +15,5 @@ preview_time = 0.0
 transform = Transform3D(0.441932, 0, 0, 0, 0.441932, 0, 0, 0, 1, 0, 0, 0)
 script = ExtResource("2_dis8b")
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 1.43379, 3.98254)
+[node name="Camera3D" type="Camera3D" parent="." unique_id=2002566479]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 1.4337933, 3.98254)

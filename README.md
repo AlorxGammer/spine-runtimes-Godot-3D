@@ -15,7 +15,7 @@ Current validation notes:
 - Godot 4.3+ is the supported baseline.
 - Build/export validation has currently been performed mainly on Windows and Android.
 - Runtime/platform testing is still ongoing; Linux is not fully validated yet.
-- `custom-material-3D` is still in development and may not behave identically across all render paths.
+- `custom-material-3D` now uses the Spine 3D material adapter for lighting, slot textures, alpha cutoff, and double-sided shader injection.
 - The `SpineSprite3D.double_sided` GPU view-stack rendering fix has been ported to all maintained Spine runtime trees.
 - The freshest fixes are expected to land first in the `Spine-4.2` branch.
 - The `Spine-4.3` branch will be adjusted further after the official Spine 4.3 runtime branch settles upstream.
@@ -40,6 +40,12 @@ Godot/godot-cpp 4.1 and 4.2 are intentionally not supported in this release layo
 The slot stack depth is now sent to the shader and offset per render pass on the GPU. This removes the old CPU dependency on a selected camera for slot assembly, so mirrors, SubViewports, editor cameras, and multiple runtime cameras can render the same object with the correct local stack direction in their own pass.
 
 Generated and runtime custom shaders also handle backface lighting by flipping the normal and binormal on back faces. This keeps normal maps and 2D-lighting-style materials readable on the rear side when `double_sided` is enabled.
+
+## 3D Custom Materials
+
+`SpineSprite3D` and `SpineSlotNode3D` can use custom `Material` resources per Spine blend mode, similar to the 2D runtime. In 3D, the runtime adapts material copies per slot so custom materials still receive the correct atlas texture, vertex color, render priority, Spine blend mode, alpha cutoff, lighting mode, optional normal map, and double-sided view-stack code.
+
+Custom spatial shaders should sample `spine_texture` or a common alias such as `texture_albedo`, `albedo_texture`, or `diffuse_texture`. The demo `new_shader.gdshader` files use tint/saturation effects that keep all RGB channels intact, so colored lights remain readable.
 
 ## Layout
 
