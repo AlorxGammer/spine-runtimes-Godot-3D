@@ -1,15 +1,16 @@
 [gd_scene format=3 uid="uid://bo61y75ea17c0"]
 
-[ext_resource type="Script" path="res://examples3D/07-slot-node-3D/slot-node3D.gd" id="1_10qjd"]
-[ext_resource type="SpineSkeletonDataResource" path="res://assets/spineboy/spineboy-data-res.tres" id="2_8jiyu"]
-[ext_resource type="SpineSkeletonDataResource" path="res://assets/raptor/raptor-data.tres" id="3_nlndb"]
-[ext_resource type="Texture2D" path="res://icon.png" id="4_1cjgg"]
+[ext_resource type="Script" uid="uid://c1mub6aqtst21" path="res://examples3D/07-slot-node-3D/slot-node3D.gd" id="1_10qjd"]
+[ext_resource type="SpineSkeletonDataResource" uid="uid://cb6rn6vonqbx0" path="res://assets/spineboy/spineboy-data-res.tres" id="2_8jiyu"]
+[ext_resource type="SpineSkeletonDataResource" uid="uid://dwo5fl4ti5ly8" path="res://assets/raptor/raptor-data.tres" id="3_nlndb"]
+[ext_resource type="Texture2D" uid="uid://8ud5n2ywp5ba" path="res://icon.png" id="4_1cjgg"]
 
 [node name="Node3D" type="Node3D" unique_id=567886593]
 script = ExtResource("1_10qjd")
 
 [node name="Spineboy" type="SpineSprite3D" parent="." unique_id=1845148730]
 skeleton_data_res = ExtResource("2_8jiyu")
+double_sided = true
 preview_skin = "Default"
 preview_animation = "-- Empty --"
 preview_frame = false
@@ -18,10 +19,11 @@ transform = Transform3D(0.560712, 0, 0, 0, 0.560712, 0, 0, 0, 1, 0, 0, 0)
 
 [node name="GunSlot" type="SpineSlotNode3D" parent="Spineboy" unique_id=1543875442]
 slot_name = "gun"
-transform = Transform3D(0.6695196, 0.7427943, 0, -0.74279416, 0.6695197, 0, 0, 0, 1, 0.4168188, 2.7695487, 0.008279125)
+transform = Transform3D(0.6695196, 0.7427943, 0, -0.74279416, 0.6695197, 0, 0, 0, 1, 0.40875244, 2.7603571, 0.01075)
 
 [node name="Raptor" type="SpineSprite3D" parent="Spineboy/GunSlot" unique_id=438203494]
 skeleton_data_res = ExtResource("3_nlndb")
+double_sided = true
 preview_skin = "Default"
 preview_animation = "-- Empty --"
 preview_frame = false
@@ -30,7 +32,7 @@ transform = Transform3D(0.19300002, -7.450581e-09, 0, 7.450581e-09, 0.19300003, 
 
 [node name="EyeSlot" type="SpineSlotNode3D" parent="Spineboy" unique_id=1815140668]
 slot_name = "eye"
-transform = Transform3D(-0.14660093, -0.98919576, 0, 0.98919576, -0.14660093, 0, 0, 0, 1, -0.22353084, 4.0356245, 0.01135973)
+transform = Transform3D(-0.14660093, -0.98919576, 0, 0.98919576, -0.14660093, 0, 0, 0, 1, -0.23459865, 4.0230126, 0.014750001)
 
 [node name="Sprite" type="Sprite3D" parent="Spineboy/EyeSlot" unique_id=745933322]
 transform = Transform3D(-0.09237045, 0.99572384, 0, -0.99572384, -0.09237045, 0, 0, 0, 1, 0.8706565, -0.4169607, 0)
@@ -40,10 +42,11 @@ texture = ExtResource("4_1cjgg")
 
 [node name="FrontFistSlot" type="SpineSlotNode3D" parent="Spineboy" unique_id=1155691876]
 slot_name = "front-fist"
-transform = Transform3D(0.54434633, 0.8388605, 0, -0.8388606, 0.5443463, 0, 0, 0, 1, -0.27660385, 2.4313786, 0.014055259)
+transform = Transform3D(0.54434633, 0.8388605, 0, -0.8388606, 0.5443463, 0, 0, 0, 1, -0.2902979, 2.4157743, 0.018250002)
 
 [node name="TinySpineboy" type="SpineSprite3D" parent="Spineboy/FrontFistSlot" unique_id=847142195]
 skeleton_data_res = ExtResource("2_8jiyu")
+double_sided = true
 preview_skin = "Default"
 preview_animation = "-- Empty --"
 preview_frame = false

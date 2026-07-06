@@ -1,27 +1,28 @@
-[gd_scene load_steps=4 format=3 uid="uid://dvdnhhb1t62jk"]
+[gd_scene format=3 uid="uid://dvdnhhb1t62jk"]
 
-[ext_resource type="Script" path="res://examples3D/06-bone-following-3D/bone-following-3D.gd" id="1_g51ma"]
-[ext_resource type="SpineSkeletonDataResource" path="res://assets/spineboy/spineboy-data-res.tres" id="2_2m7ay"]
-[ext_resource type="Texture2D" path="res://icon.png" id="3_8qx6x"]
+[ext_resource type="Script" uid="uid://doulkf4k1ge0y" path="res://examples3D/06-bone-following-3D/bone-following-3D.gd" id="1_g51ma"]
+[ext_resource type="SpineSkeletonDataResource" uid="uid://cb6rn6vonqbx0" path="res://assets/spineboy/spineboy-data-res.tres" id="2_2m7ay"]
+[ext_resource type="Texture2D" uid="uid://8ud5n2ywp5ba" path="res://icon.png" id="3_8qx6x"]
 
-[node name="Node3D" type="Node3D"]
+[node name="Node3D" type="Node3D" unique_id=1189279469]
 script = ExtResource("1_g51ma")
 
-[node name="Spineboy" type="SpineSprite3D" parent="."]
+[node name="Spineboy" type="SpineSprite3D" parent="." unique_id=86027605]
 skeleton_data_res = ExtResource("2_2m7ay")
+double_sided = true
 preview_skin = "Default"
 preview_animation = ""
 preview_frame = false
 preview_time = 0.0
 transform = Transform3D(0.58461, 0, 0, 0, 0.58461, 0, 0, 0, 1, 0, 0, 0)
 
-[node name="GunTipBone" type="SpineBoneNode3D" parent="Spineboy"]
+[node name="GunTipBone" type="SpineBoneNode3D" parent="Spineboy" unique_id=1988053606]
 bone_name = "gun-tip"
-transform = Transform3D(0.7588167, 0.651304, 0, -0.651304, 0.7588168, 0, 0, 0, 1, 2.136498, 1.6290431, 0)
+transform = Transform3D(0.75619614, 0.6543448, 0, -0.65434474, 0.75619614, 0, 0, 0, 1, 2.1429808, 1.6204729, 0)
 
-[node name="Sprite" type="Sprite3D" parent="Spineboy/GunTipBone"]
+[node name="Sprite" type="Sprite3D" parent="Spineboy/GunTipBone" unique_id=696453453]
 transform = Transform3D(1, 2.9802322e-08, 0, -2.9802322e-08, 1, 0, 0, 0, 1, 0, 0, 0.0037231445)
 texture = ExtResource("3_8qx6x")
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=2135715630]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 1.4337933, 3.98254)
