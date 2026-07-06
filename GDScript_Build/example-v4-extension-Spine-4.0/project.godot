@@ -15,8 +15,8 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="example-v4-extension-Spine-4.0"
-run/main_scene="res://examples3D/01-helloworld-3D/helloworld-3D.tscn"
-config/features=PackedStringArray("4.3")
+run/main_scene="uid://4hs8n7u47oc7"
+config/features=PackedStringArray("4.7")
 run/low_processor_mode=true
 config/icon="res://icon.png"
 
@@ -27,7 +27,6 @@ import/blender/enabled=false
 [global]
 
 batch=false
-
 
 [native_extensions]
 

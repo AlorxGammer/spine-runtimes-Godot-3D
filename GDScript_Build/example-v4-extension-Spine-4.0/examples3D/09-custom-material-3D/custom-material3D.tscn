@@ -1,9 +1,13 @@
 [gd_scene format=3 uid="uid://b5x62ynmg550i"]
 
-[ext_resource type="SpineSkeletonDataResource" path="res://assets/spineboy/spineboy-data-res.tres" id="1_hjunx"]
-[ext_resource type="Shader" path="res://assets/shaders/new_shader.gdshader" id="2_a57ni"]
-[ext_resource type="Script" path="res://examples3D/01-helloworld-3D/spineboy-helloworld-3D-.gd" id="3_4bkm8"]
-[ext_resource type="Shader" path="res://assets/shaders/new_shader1.gdshader" id="4_k8pwq"]
+[ext_resource type="SpineSkeletonDataResource" uid="uid://cb6rn6vonqbx0" path="res://assets/spineboy/spineboy-data-res.tres" id="1_hjunx"]
+[ext_resource type="Shader" uid="uid://cdywken68esc" path="res://assets/shaders/new_shader.gdshader" id="2_a57ni"]
+[ext_resource type="Script" uid="uid://drgxqj2tem4l8" path="res://examples3D/01-helloworld-3D/spineboy-helloworld-3D-.gd" id="3_4bkm8"]
+[ext_resource type="Shader" uid="uid://cbv15ktrf6ebh" path="res://assets/shaders/new_shader1.gdshader" id="4_k8pwq"]
+[ext_resource type="Script" uid="uid://cj35fai3nghpv" path="res://OmniLight2.5D.gd" id="5_a57ni"]
+
+[sub_resource type="Environment" id="Environment_4bkm8"]
+background_mode = 1
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_xtkie"]
 render_priority = 0
@@ -13,10 +17,15 @@ shader = ExtResource("2_a57ni")
 render_priority = 0
 shader = ExtResource("4_k8pwq")
 
-[node name="Node3d" type="Node3D"]
+[node name="Node3d" type="Node3D" unique_id=259039462]
 
-[node name="SpineSprite3D" type="SpineSprite3D" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=472232271]
+environment = SubResource("Environment_4bkm8")
+
+[node name="SpineSprite3D" type="SpineSprite3D" parent="." unique_id=1389513619]
 skeleton_data_res = ExtResource("1_hjunx")
+lighting_enabled = true
+double_sided = true
 normal_material = SubResource("ShaderMaterial_xtkie")
 preview_skin = "Default"
 preview_animation = "-- Empty --"
@@ -24,10 +33,28 @@ preview_frame = false
 preview_time = 0.0
 script = ExtResource("3_4bkm8")
 
-[node name="GunSlot" type="SpineSlotNode3D" parent="SpineSprite3D"]
+[node name="GunSlot" type="SpineSlotNode3D" parent="SpineSprite3D" unique_id=1559304640]
 normal_material = SubResource("ShaderMaterial_sydq4")
 slot_name = "gun"
-transform = Transform3D(0.67249596, 0.7401007, 0, -0.7401006, 0.672496, 0, 0, 0, 1, 0.4022306, 2.7671106, 0.008279125)
+transform = Transform3D(0.6695196, 0.7427943, 0, -0.74279416, 0.6695197, 0, 0, 0, 1, 0.40875244, 2.7603571, 0.01075)
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1407025241]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0593748, 3.3518128, 4.9463596)
+
+[node name="OmniLight3D_Front" type="OmniLight3D" parent="." unique_id=2042187419]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.84692, 2.06933, 2.57596)
+light_energy = 3.0
+script = ExtResource("5_a57ni")
+key_color = Color(1, 1, 1, 1)
+fill_color = Color(1, 1, 1, 1)
+rim_color = Color(1, 1, 1, 1)
+key_energy = 1.34
+key_range = 3.65
+key_shadows = false
+fill_energy = 0.28
+fill_range = 4.8
+fill_offset = Vector3(-0.32, 0.2, 0.32)
+rim_energy = 0.28
+rim_range = 4.0
+rim_offset = Vector3(0.16, 0.12, -0.2)
+glow_offset = Vector3(0.16, 0.96, 0.02)

@@ -1,21 +1,22 @@
 [gd_scene format=3 uid="uid://4hs8n7u47oc7"]
 
-[ext_resource type="Script" path="res://examples3D/10-2d-lighting-3D/2d-lighting-3D.gd" id="1_hupff"]
-[ext_resource type="SpineSkeletonDataResource" path="res://assets/raptor/raptor-data.tres" id="2_vuev0"]
-[ext_resource type="Script" path="res://OmniLight2.5D.gd" id="3_pg6c8"]
+[ext_resource type="Script" uid="uid://c8g0xhytw7sxt" path="res://examples3D/10-2d-lighting-3D/2d-lighting-3D.gd" id="1_hupff"]
+[ext_resource type="SpineSkeletonDataResource" uid="uid://dwo5fl4ti5ly8" path="res://assets/raptor/raptor-data.tres" id="2_vuev0"]
+[ext_resource type="Script" uid="uid://cj35fai3nghpv" path="res://OmniLight2.5D.gd" id="3_pg6c8"]
 
 [sub_resource type="Environment" id="Environment_eood3"]
 background_mode = 1
 
-[node name="Node3D" type="Node3D" unique_id=961310444]
+[node name="Node3D" type="Node3D" unique_id=937468777]
 script = ExtResource("1_hupff")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=733972206]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=2016847311]
 environment = SubResource("Environment_eood3")
 
-[node name="SpineSprite" type="SpineSprite3D" parent="." unique_id=51006291]
+[node name="SpineSprite" type="SpineSprite3D" parent="." unique_id=1898585172]
 skeleton_data_res = ExtResource("2_vuev0")
 lighting_enabled = true
+double_sided = true
 shadow_casting_mode = 1
 preview_skin = "Default"
 preview_animation = "-- Empty --"
@@ -23,28 +24,12 @@ preview_frame = false
 preview_time = 0.0
 transform = Transform3D(0.458967, 0, 0, 0, 0.458967, 0, 0, 0, 1, 0, 0, 0)
 
-[node name="Camera3D" type="Camera3D" parent="." unique_id=1515767119]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55237615, 2.3269496, 3.98254)
+[node name="Camera3D" type="Camera3D" parent="." unique_id=728398455]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.55782, 3.87989)
 
-[node name="OmniLight3D_Back" type="OmniLight3D" parent="." unique_id=556027293]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.847, 2.261, -2.576)
-light_color = Color(1, 0.011764706, 0.011764706, 1)
-light_energy = 3.0
-script = ExtResource("3_pg6c8")
-key_energy = 1.45
-key_range = 3.5
-key_shadows = false
-fill_energy = 0.18
-fill_range = 4.2
-fill_offset = Vector3(-0.24, 0.18, 0.24)
-rim_energy = 0.34
-rim_range = 4.0
-rim_offset = Vector3(0.12, 0.14, -0.18)
-glow_offset = Vector3(0.16, 0.96, 0.02)
-
-[node name="OmniLight3D_Front" type="OmniLight3D" parent="." unique_id=1332676046]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.846917, 2.2611165, 2.5759585)
-light_color = Color(1, 0.011764706, 0.011764706, 1)
+[node name="OmniLight3D_Front" type="OmniLight3D" parent="." unique_id=443451442]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.84692, 2.06933, 2.57596)
+light_color = Color(1, 0.0117647, 0.0117647, 1)
 light_energy = 3.0
 script = ExtResource("3_pg6c8")
 key_energy = 1.45
