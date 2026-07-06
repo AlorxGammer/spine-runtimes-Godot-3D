@@ -1,6 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://d4k57xla6y48"]
+[gd_scene format=3 uid="uid://d4k57xla6y48"]
 
-[ext_resource type="SpineSkeletonDataResource" path="res://assets/celestial-circus/celestial-circus-data.tres" id="2_dts4c"]
+[ext_resource type="SpineSkeletonDataResource" uid="uid://d1ordmjpe5kt7" path="res://assets/celestial-circus/celestial-circus-data.tres" id="2_dts4c"]
 
 [sub_resource type="GDScript" id="GDScript_qha2g"]
 script/source = "extends Node3D
@@ -139,10 +139,10 @@ func _on_area_3d_mouse_exited():
 [sub_resource type="BoxShape3D" id="BoxShape3D_umbwg"]
 size = Vector3(13.6933, 23.5962, 1)
 
-[node name="Node3D" type="Node3D"]
+[node name="Node3D" type="Node3D" unique_id=695680050]
 script = SubResource("GDScript_qha2g")
 
-[node name="celestial-circus" type="SpineSprite3D" parent="."]
+[node name="celestial-circus" type="SpineSprite3D" parent="." unique_id=1346204633]
 skeleton_data_res = ExtResource("2_dts4c")
 preview_skin = "Default"
 preview_animation = "-- Empty --"
@@ -150,13 +150,13 @@ preview_frame = false
 preview_time = 0.0
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 1, -0.161459, 1.36851, 0)
 
-[node name="Area3D" type="Area3D" parent="celestial-circus"]
+[node name="Area3D" type="Area3D" parent="celestial-circus" unique_id=228133927]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="celestial-circus/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="celestial-circus/Area3D" unique_id=1954826523]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.808903, 6.35144, 0)
 shape = SubResource("BoxShape3D_umbwg")
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=164061331]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0963049, 2.7945, 5.60821)
 
 [connection signal="mouse_entered" from="celestial-circus/Area3D" to="." method="_on_area_3d_mouse_entered"]
