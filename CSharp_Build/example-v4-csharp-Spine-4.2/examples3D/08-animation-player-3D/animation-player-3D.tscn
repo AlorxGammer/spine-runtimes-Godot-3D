@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://cn52jjgoqmw8t"]
+[gd_scene load_steps=3 format=3 uid="uid://cet3e2eubs7xr"]
 
 [ext_resource type="Script" path="res://examples3D/08-animation-player-3D/PlayCutscene3D.cs" id="1_script"]
 [ext_resource type="SpineSkeletonDataResource" uid="uid://cb6rn6vonqbx0" path="res://assets/spineboy/spineboy-data-res.tres" id="2_spineboy"]

@@ -67,27 +67,24 @@ static uint64_t make_visible_material_cache_key(int blend_mode, const Ref<Textur
 	return key;
 }
 
-static String make_spine_render_world_3d_view_stack_vertex_code();
 static String make_spine_render_world_3d_double_sided_lighting_code();
-static String normalize_spine_render_world_3d_custom_shader_render_modes(String code, int blend_mode, bool lighting_enabled);
+static String make_spine_render_world_3d_double_sided_varying_code();
+static String make_spine_render_world_3d_double_sided_vertex_code();
+static String ensure_spine_render_world_3d_double_sided_varying(String code);
+static String ensure_spine_render_world_3d_double_sided_vertex_side(String code);
+static String normalize_spine_render_world_3d_custom_shader_render_modes(String code, int blend_mode, bool lighting_enabled, bool double_sided_geometry);
 
 static Ref<ShaderMaterial> make_normal_map_preview_material(const Ref<Texture2D> &diffuse_texture, const Ref<Texture2D> &normal_texture, int render_priority, float alpha_cutoff, bool double_sided_geometry) {
 	Ref<Shader> shader = memnew(Shader);
-	String vertex_code;
-	if (double_sided_geometry) {
-		vertex_code =
-				"void vertex() {\n"
-				+ make_spine_render_world_3d_view_stack_vertex_code() +
-				"}\n";
-	}
 	shader->set_code(
 			String("shader_type spatial;\n") +
-			String("render_mode unshaded, cull_disabled, depth_prepass_alpha;\n") +
+			String("render_mode unshaded, ") +
+			(double_sided_geometry ? String("cull_back") : String("cull_disabled")) +
+			String(", depth_prepass_alpha;\n") +
 			"uniform sampler2D spine_texture : source_color;\n"
 			"uniform sampler2D spine_normal_texture : hint_normal;\n"
 			"uniform bool spine_has_normal_texture = false;\n"
 			"uniform float spine_alpha_cutoff = 0.0;\n"
-			+ vertex_code +
 			"void fragment() {\n"
 			"	vec4 diffuse_sample = texture(spine_texture, UV);\n"
 			"	vec4 normal_sample = texture(spine_normal_texture, UV);\n"
@@ -111,23 +108,10 @@ static Ref<ShaderMaterial> make_normal_map_preview_material(const Ref<Texture2D>
 
 static String make_spine_render_world_3d_custom_shader_code(const String &source_code, int blend_mode, bool lighting_enabled, bool double_sided_geometry) {
 	String code = source_code;
-	code = normalize_spine_render_world_3d_custom_shader_render_modes(code, blend_mode, lighting_enabled);
-	if (double_sided_geometry && code.find("CUSTOM1.x") < 0) {
-		const int vertex_pos = code.find("void vertex()");
-		if (vertex_pos >= 0) {
-			const int body_pos = code.find("{", vertex_pos);
-			if (body_pos >= 0) {
-				code = code.substr(0, body_pos + 1) + "\n" + make_spine_render_world_3d_view_stack_vertex_code() + code.substr(body_pos + 1);
-			}
-		} else {
-			const int fragment_pos = code.find("void fragment()");
-			const String vertex_function = "void vertex() {\n" + make_spine_render_world_3d_view_stack_vertex_code() + "}\n";
-			if (fragment_pos >= 0) {
-				code = code.substr(0, fragment_pos) + vertex_function + code.substr(fragment_pos);
-			} else {
-				code += "\n" + vertex_function;
-			}
-		}
+	code = normalize_spine_render_world_3d_custom_shader_render_modes(code, blend_mode, lighting_enabled, double_sided_geometry);
+	if (double_sided_geometry) {
+		code = ensure_spine_render_world_3d_double_sided_varying(code);
+		code = ensure_spine_render_world_3d_double_sided_vertex_side(code);
 		const int fragment_pos = code.find("void fragment()");
 		if (fragment_pos >= 0) {
 			const int body_pos = code.find("{", fragment_pos);
@@ -187,16 +171,18 @@ static BitField<Mesh::ArrayFormat> make_spine_render_world_3d_custom_array_flags
 	return (BitField<Mesh::ArrayFormat>)flags;
 }
 
-static String make_spine_render_world_3d_view_stack_vertex_code() {
-	return "	vec3 view_local = normalize(inverse(mat3(MODELVIEW_MATRIX)) * vec3(0.0, 0.0, 1.0));\n"
-		   "	VERTEX += view_local * CUSTOM1.x;\n";
+static String make_spine_render_world_3d_double_sided_lighting_code() {
+	return "	if (spine_surface_side < -0.5 || (!FRONT_FACING && spine_surface_side > -0.5)) {\n"
+		   "		NORMAL = -NORMAL;\n"
+		   "	}\n";
 }
 
-static String make_spine_render_world_3d_double_sided_lighting_code() {
-	return "	if (!FRONT_FACING) {\n"
-		   "		NORMAL = -NORMAL;\n"
-		   "		BINORMAL = -BINORMAL;\n"
-		   "	}\n";
+static String make_spine_render_world_3d_double_sided_varying_code() {
+	return "varying float spine_surface_side;\n";
+}
+
+static String make_spine_render_world_3d_double_sided_vertex_code() {
+	return "	spine_surface_side = CUSTOM1.x;\n";
 }
 
 static String get_spine_render_world_3d_blend_render_mode(int blend_mode) {
@@ -263,11 +249,11 @@ static String ensure_spine_render_world_3d_render_mode_token(String code, const 
 	return "render_mode " + token + ";\n" + code;
 }
 
-static String normalize_spine_render_world_3d_custom_shader_render_modes(String code, int blend_mode, bool lighting_enabled) {
+static String normalize_spine_render_world_3d_custom_shader_render_modes(String code, int blend_mode, bool lighting_enabled, bool double_sided_geometry) {
 	code = remove_spine_render_world_3d_render_mode_token(code, "cull_back");
 	code = remove_spine_render_world_3d_render_mode_token(code, "cull_front");
 	code = remove_spine_render_world_3d_render_mode_token(code, "cull_disabled");
-	code = ensure_spine_render_world_3d_render_mode_token(code, "cull_disabled");
+	code = ensure_spine_render_world_3d_render_mode_token(code, double_sided_geometry ? "cull_back" : "cull_disabled");
 
 	code = remove_spine_render_world_3d_render_mode_token(code, "blend_mix");
 	code = remove_spine_render_world_3d_render_mode_token(code, "blend_add");
@@ -282,6 +268,7 @@ static String normalize_spine_render_world_3d_custom_shader_render_modes(String 
 	code = remove_spine_render_world_3d_render_mode_token(code, "depth_draw_never");
 	code = remove_spine_render_world_3d_render_mode_token(code, "depth_prepass_alpha");
 	code = ensure_spine_render_world_3d_render_mode_token(code, "depth_prepass_alpha");
+	code = remove_spine_render_world_3d_render_mode_token(code, "depth_test_disabled");
 
 	code = remove_spine_render_world_3d_render_mode_token(code, "unshaded");
 	if (!lighting_enabled) {
@@ -291,12 +278,41 @@ static String normalize_spine_render_world_3d_custom_shader_render_modes(String 
 	return code;
 }
 
-static void apply_spine_render_world_3d_base_material_contract(Ref<BaseMaterial3D> base_material, int blend_mode, const Ref<Texture> &texture, const Ref<Texture> &normal_map, bool lighting_enabled, bool generated_normal_map_enabled, float generated_normal_scale, float generated_standard_specular, float generated_standard_roughness, float generated_standard_metallic, float generated_shader_light_scale, float generated_shader_ambient) {
+static String ensure_spine_render_world_3d_double_sided_varying(String code) {
+	if (code.find("spine_surface_side") >= 0) return code;
+	const int shader_type_pos = code.find("shader_type");
+	if (shader_type_pos >= 0) {
+		const int shader_type_end = code.find(";", shader_type_pos);
+		if (shader_type_end >= 0) {
+			return code.substr(0, shader_type_end + 1) + "\n" + make_spine_render_world_3d_double_sided_varying_code() + code.substr(shader_type_end + 1);
+		}
+	}
+	return make_spine_render_world_3d_double_sided_varying_code() + code;
+}
+
+static String ensure_spine_render_world_3d_double_sided_vertex_side(String code) {
+	const int vertex_pos = code.find("void vertex()");
+	if (vertex_pos >= 0) {
+		const int body_pos = code.find("{", vertex_pos);
+		if (body_pos >= 0) {
+			return code.substr(0, body_pos + 1) + "\n" + make_spine_render_world_3d_double_sided_vertex_code() + code.substr(body_pos + 1);
+		}
+	}
+	const int fragment_pos = code.find("void fragment()");
+	const String vertex_function = "void vertex() {\n" + make_spine_render_world_3d_double_sided_vertex_code() + "}\n";
+	if (fragment_pos >= 0) {
+		return code.substr(0, fragment_pos) + vertex_function + code.substr(fragment_pos);
+	}
+	return code + "\n" + vertex_function;
+}
+
+static void apply_spine_render_world_3d_base_material_contract(Ref<BaseMaterial3D> base_material, int blend_mode, const Ref<Texture> &texture, const Ref<Texture> &normal_map, bool lighting_enabled, bool double_sided_geometry, bool generated_normal_map_enabled, float generated_normal_scale, float generated_standard_specular, float generated_standard_roughness, float generated_standard_metallic, float generated_shader_light_scale, float generated_shader_ambient) {
 	if (!base_material.is_valid()) return;
 
 	base_material->set_shading_mode(lighting_enabled ? BaseMaterial3D::SHADING_MODE_PER_PIXEL : BaseMaterial3D::SHADING_MODE_UNSHADED);
-	base_material->set_cull_mode(BaseMaterial3D::CULL_DISABLED);
+	base_material->set_cull_mode(double_sided_geometry ? BaseMaterial3D::CULL_BACK : BaseMaterial3D::CULL_DISABLED);
 	base_material->set_flag(BaseMaterial3D::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
+	base_material->set_flag(BaseMaterial3D::FLAG_DISABLE_DEPTH_TEST, false);
 	base_material->set_transparency(BaseMaterial3D::TRANSPARENCY_ALPHA_DEPTH_PRE_PASS);
 	base_material->set_depth_draw_mode(BaseMaterial3D::DEPTH_DRAW_OPAQUE_ONLY);
 	base_material->set_texture(BaseMaterial3D::TEXTURE_ALBEDO, texture);
@@ -377,8 +393,8 @@ static Ref<ShaderMaterial> make_two_color_material(int blend_mode, const Ref<Tex
 	if (!lighting_enabled) {
 		render_mode += "unshaded, ";
 	}
-	render_mode += "cull_disabled, ";
-	render_mode += "depth_draw_never";
+	render_mode += double_sided_geometry ? "cull_back, " : "cull_disabled, ";
+	render_mode += double_sided_geometry ? "depth_prepass_alpha" : "depth_draw_never";
 	switch ((spine::BlendMode)blend_mode) {
 		case spine::BlendMode_Additive:
 		case spine::BlendMode_Screen:
@@ -407,9 +423,10 @@ static Ref<ShaderMaterial> make_two_color_material(int blend_mode, const Ref<Tex
 			"uniform float spine_roughness = 0.5;\n"
 			"uniform float spine_metallic = 0.0;\n"
 			"uniform float spine_alpha_cutoff = 0.0;\n"
+			+ (double_sided_geometry ? make_spine_render_world_3d_double_sided_varying_code() : String()) +
 			"varying vec4 spine_dark_color;\n"
 			"void vertex() {\n"
-			+ (double_sided_geometry ? make_spine_render_world_3d_view_stack_vertex_code() : String()) +
+			+ (double_sided_geometry ? make_spine_render_world_3d_double_sided_vertex_code() : String()) +
 			"	spine_dark_color = CUSTOM0;\n"
 			"}\n"
 			"void fragment() {\n"
@@ -452,7 +469,7 @@ static Ref<ShaderMaterial> make_single_color_material(int blend_mode, const Ref<
 	if (!lighting_enabled) {
 		render_mode += "unshaded, ";
 	}
-	render_mode += "cull_disabled, depth_prepass_alpha";
+	render_mode += double_sided_geometry ? "cull_back, depth_prepass_alpha" : "cull_disabled, depth_prepass_alpha";
 	switch ((spine::BlendMode)blend_mode) {
 		case spine::BlendMode_Additive:
 		case spine::BlendMode_Screen:
@@ -481,8 +498,9 @@ static Ref<ShaderMaterial> make_single_color_material(int blend_mode, const Ref<
 			"uniform float spine_roughness = 0.5;\n"
 			"uniform float spine_metallic = 0.0;\n"
 			"uniform float spine_alpha_cutoff = 0.0;\n"
+			+ (double_sided_geometry ? make_spine_render_world_3d_double_sided_varying_code() : String()) +
 			"void vertex() {\n"
-			+ (double_sided_geometry ? make_spine_render_world_3d_view_stack_vertex_code() : String()) +
+			+ (double_sided_geometry ? make_spine_render_world_3d_double_sided_vertex_code() : String()) +
 			"}\n"
 			"void fragment() {\n"
 			+ (double_sided_geometry ? make_spine_render_world_3d_double_sided_lighting_code() : String()) +
@@ -672,7 +690,7 @@ Ref<Material> SpineRenderWorld3D::resolve_visible_material(int blend_mode, const
 
 		duplicated->set("render_priority", clamped_priority);
 		Ref<BaseMaterial3D> base_material = duplicated;
-		apply_spine_render_world_3d_base_material_contract(base_material, blend_mode, texture, material_normal_map, lighting_enabled, generated_normal_map_enabled, generated_normal_scale, generated_standard_specular, generated_standard_roughness, generated_standard_metallic, generated_shader_light_scale, generated_shader_ambient);
+		apply_spine_render_world_3d_base_material_contract(base_material, blend_mode, texture, material_normal_map, lighting_enabled, double_sided_geometry, generated_normal_map_enabled, generated_normal_scale, generated_standard_specular, generated_standard_roughness, generated_standard_metallic, generated_shader_light_scale, generated_shader_ambient);
 
 		visible_material_cache.emplace(cache_key, duplicated);
 		return duplicated;
@@ -692,10 +710,11 @@ Ref<Material> SpineRenderWorld3D::resolve_visible_material(int blend_mode, const
 
 	Ref<StandardMaterial3D> material = memnew(StandardMaterial3D);
 	material->set_shading_mode(lighting_enabled ? BaseMaterial3D::SHADING_MODE_PER_PIXEL : BaseMaterial3D::SHADING_MODE_UNSHADED);
-	material->set_cull_mode(BaseMaterial3D::CULL_DISABLED);
+	material->set_cull_mode(double_sided_geometry ? BaseMaterial3D::CULL_BACK : BaseMaterial3D::CULL_DISABLED);
 	material->set_render_priority(clamped_priority);
 	material->set_transparency(BaseMaterial3D::TRANSPARENCY_ALPHA_DEPTH_PRE_PASS);
 	material->set_depth_draw_mode(BaseMaterial3D::DEPTH_DRAW_OPAQUE_ONLY);
+	material->set_flag(BaseMaterial3D::FLAG_DISABLE_DEPTH_TEST, false);
 	material->set("alpha_scissor_threshold", 0.0f);
 	material->set_flag(BaseMaterial3D::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
 	material->set_albedo(Color(generated_shader_light_scale, generated_shader_light_scale, generated_shader_light_scale, 1.0f));
@@ -744,7 +763,7 @@ Ref<Material> SpineRenderWorld3D::resolve_shadow_material(const Ref<Texture> &te
 	material->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
 	material->set_transparency(BaseMaterial3D::TRANSPARENCY_ALPHA_SCISSOR);
 	const bool double_sided_shadows = clamped_mode == GeometryInstance3D::SHADOW_CASTING_SETTING_DOUBLE_SIDED;
-	material->set_cull_mode((double_sided_geometry || double_sided_shadows) ? BaseMaterial3D::CULL_DISABLED : BaseMaterial3D::CULL_BACK);
+	material->set_cull_mode(double_sided_geometry ? BaseMaterial3D::CULL_BACK : (double_sided_shadows ? BaseMaterial3D::CULL_DISABLED : BaseMaterial3D::CULL_BACK));
 	material->set_depth_draw_mode(BaseMaterial3D::DEPTH_DRAW_OPAQUE_ONLY);
 	material->set_flag(BaseMaterial3D::FLAG_ALBEDO_FROM_VERTEX_COLOR, false);
 	material->set_texture(BaseMaterial3D::TEXTURE_ALBEDO, texture);
