@@ -18,7 +18,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="example-v4-csharp-Spine-3.8"
 run/main_scene="res://examples3D/10-2d-lighting-3D/2d-lighting-3D.tscn"
-config/features=PackedStringArray("4.3", "C#")
+config/features=PackedStringArray("4.7", "C#")
 run/low_processor_mode=true
 config/icon="res://icon.png"
 

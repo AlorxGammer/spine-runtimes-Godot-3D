@@ -1,10 +1,8 @@
-[gd_resource type="SpineSkeletonDataResource" load_steps=3 format=2]
+[gd_resource type="SpineSkeletonDataResource" format=3 uid="uid://dy0axuv48afqv"]
 
-[ext_resource path="res://assets/mix-and-match/mix-and-match.atlas" type="SpineAtlasResource" id=1]
-[ext_resource path="res://assets/mix-and-match/mix-and-match-pro.spine-json" type="SpineSkeletonFileResource" id=2]
+[ext_resource type="SpineAtlasResource" uid="uid://cvu8lycjkd245" path="res://assets/mix-and-match/mix-and-match.atlas" id="1"]
+[ext_resource type="SpineSkeletonFileResource" uid="uid://ckitsrtfxmo2w" path="res://assets/mix-and-match/mix-and-match-pro.spine-json" id="2"]
 
 [resource]
-atlas_res = ExtResource( 1 )
-skeleton_file_res = ExtResource( 2 )
-animations = null
-skins = null
+atlas_res = ExtResource("1")
+skeleton_file_res = ExtResource("2")
