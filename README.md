@@ -16,7 +16,7 @@ Current validation notes:
 - Build/export validation has currently been performed mainly on Windows and Android.
 - Runtime/platform testing is still ongoing; Linux is not fully validated yet.
 - `custom-material-3D` now uses the Spine 3D material adapter for lighting, slot textures, alpha cutoff, and double-sided shader injection.
-- The `SpineSprite3D.double_sided` GPU view-stack rendering fix has been ported to all maintained Spine runtime trees.
+- The `SpineSprite3D.double_sided` camera-free front/back geometry fix has been ported to all maintained Spine runtime trees.
 - The freshest fixes are expected to land first in the `Spine-4.2` branch.
 - The `Spine-4.3` branch will be adjusted further after the official Spine 4.3 runtime branch settles upstream.
 
@@ -35,15 +35,15 @@ Godot/godot-cpp 4.1 and 4.2 are intentionally not supported in this release layo
 
 ## 3D Double-Sided Rendering
 
-`SpineSprite3D` includes a `double_sided` option for true two-sided 3D rendering. When enabled, the runtime keeps the normal front-side Spine slot order and also renders the back side with the inverse stack order, so the character remains assembled correctly from both sides instead of relying on Godot material culling alone.
+`SpineSprite3D` includes a `double_sided` option for true two-sided 3D rendering. When enabled, the runtime builds real front and back geometry from the Spine draw order, so the character remains assembled correctly from both sides instead of relying on Godot material culling alone.
 
-The slot stack depth is now sent to the shader and offset per render pass on the GPU. This removes the old CPU dependency on a selected camera for slot assembly, so mirrors, SubViewports, editor cameras, and multiple runtime cameras can render the same object with the correct local stack direction in their own pass.
+The double-sided stack is assembled in the object's local space instead of being tied to a selected camera or a shader view stack. This makes mirrors, SubViewports, editor cameras, and multiple runtime cameras see the same stable object composition.
 
-Generated and runtime custom shaders also handle backface lighting by flipping the normal and binormal on back faces. This keeps normal maps and 2D-lighting-style materials readable on the rear side when `double_sided` is enabled.
+Generated and runtime custom shaders also handle double-sided backface lighting while preserving the tangent basis used by normal maps. Backface shading flips the surface normal without double-flipping the binormal, so 2D-lighting-style normal maps remain readable on the rear side when `double_sided` is enabled.
 
 ## 3D Custom Materials
 
-`SpineSprite3D` and `SpineSlotNode3D` can use custom `Material` resources per Spine blend mode, similar to the 2D runtime. In 3D, the runtime adapts material copies per slot so custom materials still receive the correct atlas texture, vertex color, render priority, Spine blend mode, alpha cutoff, lighting mode, optional normal map, and double-sided view-stack code.
+`SpineSprite3D` and `SpineSlotNode3D` can use custom `Material` resources per Spine blend mode, similar to the 2D runtime. In 3D, the runtime adapts material copies per slot so custom materials still receive the correct atlas texture, vertex color, render priority, Spine blend mode, alpha cutoff, lighting mode, optional normal map, and double-sided shader setup.
 
 Custom spatial shaders should sample `spine_texture` or a common alias such as `texture_albedo`, `albedo_texture`, or `diffuse_texture`. The demo `new_shader.gdshader` files use tint/saturation effects that keep all RGB channels intact, so colored lights remain readable.
 
